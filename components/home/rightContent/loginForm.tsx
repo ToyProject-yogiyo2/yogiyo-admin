@@ -72,7 +72,7 @@ export const LoginForm = () => {
                             </div>
                             <div
                                 className="flex items-center justify-center w-auto max-w-[480px] h-10 border border-sin-blue rounded-lg cursor-pointer"
-                                onClick={() => router.push("/dashboard")}
+                                onClick={() => router.push("/self-service")}
                             >
                                 <span className="text-sm text-sin-blue">셀프서비스 바로가기</span>
                             </div>
