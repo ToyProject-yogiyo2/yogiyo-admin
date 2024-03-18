@@ -6,8 +6,6 @@ const baseAxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
 });
-
-
 interface iShopInfo {
   shopname?: string,
   callnum1?: string,
@@ -17,6 +15,7 @@ interface iShopInfo {
   address2?: string,
   category?: string,
 }
+
 const AddShop = () => {
   const [file, setFile] = useState<File | null>(null);
   const [filename, setFilename] = useState('');
@@ -49,31 +48,6 @@ const AddShop = () => {
     }
   }
   const handleValueChange : ComponentProps<'input'>['onChange'] = (e) => {
-    /*
-    switch(e.target.id){
-      case 'shopname' :
-        setShopInfo({...shopInfo, shopname: e.target.value})
-        break;
-      case 'callnum1' :
-        setShopInfo({...shopInfo, callnum1: e.target.value})
-        break;
-      case 'callnum2' :
-        setShopInfo({...shopInfo, callnum2: e.target.value})
-        break;
-      case 'callnum3' : 
-        setShopInfo({...shopInfo, callnum3: e.target.value})
-        break;
-      case 'address1' :
-        setShopInfo({...shopInfo, address1: e.target.value})
-        break;
-      case 'address2' :
-        setShopInfo({...shopInfo, address2: e.target.value})
-        break;
-      case 'category' :
-        setShopInfo({...shopInfo, category: e.target.value})
-        break;
-    }
-    **/
     setPreShopInfo({...preShopInfo, [e.target.id]: e.target.value})
   }
 
@@ -84,9 +58,9 @@ const AddShop = () => {
         name: preShopInfo.shopname,
         callNumber: `${preShopInfo.callnum1}${preShopInfo.callnum2}${preShopInfo.callnum3}`,
         address: `${preShopInfo.address1}${preShopInfo.address2}`,
-        latitude: 0,
-        longitude: 0,
-        categories: ['a','b','c'],
+        latitude: 10,
+        longitude: 10,
+        categories: ['치킨'],
       }
     }
     console.log(shopInfo);
@@ -110,9 +84,6 @@ const AddShop = () => {
         console.error(error)
       }
     }
-
-    
-
   }
 
   return(
