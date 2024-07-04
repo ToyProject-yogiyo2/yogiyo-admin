@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Footer from "@/components/home/footer";
 import PauseService from "@/components/businessHoursSidebar/PauseService";
-import HolidaySchedule from "@/components/businessHoursSidebar/HolidaySchedule";
+import {HolidaySchedule } from "@/components/businessHoursSidebar/HolidaySchedule";
 import { ManageBusinessHours } from "@/components/businessHoursSidebar/ManageBusinessHours";
 import MenuSet from "@/components/menu/MenuSet";
 import { content } from "../recoil/state";
