@@ -1,3 +1,5 @@
+import { PiPlusBold } from "react-icons/pi";
+
 export const OwnerGuide = () => {
     return (
         <div className="flex flex-col mt-8 bg-white overflow-x-scroll">
@@ -10,7 +12,7 @@ export const OwnerGuide = () => {
                         target="_blank"
                     ></a>
                     <div className="flex items-center justify-center ">
-                        <img src="/Icons/add.png" className="w-3.5 h-3.5" />
+                        <PiPlusBold size="12" color="rgba(0, 0, 0, 0.6)" />
                     </div>
                     <span className="text-xs font-normal mx-0.5 text-custom-gray ">더보기</span>
                 </button>

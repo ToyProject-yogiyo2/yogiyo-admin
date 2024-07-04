@@ -1,3 +1,5 @@
+"use client";
+
 import { FaStar } from "react-icons/fa";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { TotalReviewsAtom, shopIdAtom } from "@/app/recoil/state";
@@ -6,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import DatePickerComponent from "./DatePicker/DatePickerComponent";
 import { Button } from "../common/Button";
 import ReviewItem from "./ReviewItem";
-import { fetchReviews } from "@/app/services/shopAPI";
+import { fetchReviews } from "@/app/services/reviewAPI";
 import { ItemLayout } from "../common/ItemLayout";
 import { ItemHeader } from "../common/ItemHeader";
 
@@ -14,10 +16,15 @@ export const ReviewManagement = () => {
     const shopId = useRecoilValue(shopIdAtom);
     const [getReviews, setGetReviews] = useRecoilState(TotalReviewsAtom);
     const [sortReview, setSortReview] = useState("LATEST");
+    const [hasReview, setHasReview] = useState<boolean>(false);
+    const [cursor, setCursor] = useState<number>(0);
+    const [subCursor, setSubCursor] = useState<number>(11);
     const [dateRange, setDateRange] = useState<{ startDate: Date | null; endDate: Date | null }>({
         startDate: null,
         endDate: null,
     });
+
+    console.log(getReviews);
 
     const reviewOption = [
         { value: "LATEST", label: "최신순" },
@@ -30,8 +37,13 @@ export const ReviewManagement = () => {
             shopId: shopId,
             dateRange,
             sortReview,
+            cursor,
+            subCursor,
         });
         setGetReviews(fetchedReviews);
+        if (getReviews.content !== null) {
+            setHasReview(true);
+        }
     };
 
     const handleSortReview = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -41,6 +53,11 @@ export const ReviewManagement = () => {
     const handleDateChange = (newDateRange: { startDate: Date | null; endDate: Date | null }) => {
         setDateRange(newDateRange);
     };
+
+    // useEffect(() => {
+    //     handleFetchReviews();
+    //     console.log("useEffect hook");
+    // }, [shopId, dateRange, sortReview, cursor, subCursor]);
 
     return (
         <div className="my-4 mx-2">
@@ -69,12 +86,31 @@ export const ReviewManagement = () => {
                                 onChange={handleDateChange}
                             />
                         </div>
-                        <Button onClick={handleFetchReviews}>조회</Button>
-                    </div>
 
-                    <ReviewItem />
+                        <Button
+                            onClick={handleFetchReviews}
+                            text={"조회"}
+                            color="submit"
+                            size="default"
+                        />
+                    </div>
+                    <>
+                        {hasReview ? (
+                            getReviews.content.map((item) => <ReviewItem key={item.id} {...item} />)
+                        ) : (
+                            <EmptyReview />
+                        )}
+                    </>
                 </div>
             </ItemLayout>
+        </div>
+    );
+};
+
+const EmptyReview = () => {
+    return (
+        <div className="flex mx-2 my-2">
+            <span className="px-2">Review is not loading</span>
         </div>
     );
 };

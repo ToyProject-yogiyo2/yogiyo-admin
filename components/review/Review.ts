@@ -1,9 +1,9 @@
 //리뷰 타입
 export interface IReview {
     nextCursor: number;
-    nextSubCursor: number;
+    nextSubCursor: number | null;
     hasNext: boolean;
-    content: IReviewContent[] | null;
+    content: IReviewContent[];
 }
 
 // 리뷰 컨텐츠 타입

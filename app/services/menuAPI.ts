@@ -37,18 +37,3 @@ export const deleteMenuItem = async (menuGroupId: number) => {
 };
 
 // 메뉴 그룹 메뉴 조회
-
-// 메뉴 그룹 순서 변경
-export const ReorderMenu = async (shopId: number, menuGroupIds: number[]) => {
-    try {
-        const res = await getAxios.put(`/owner/menu-group/shop/${shopId}/change-position`, {
-            menuGroupIds: menuGroupIds,
-        });
-        if (res.status === 204) {
-            console.log(res);
-            console.log(res.data);
-        }
-    } catch (error) {
-        console.error("메뉴 그룹 순서 변경 실패", error);
-    }
-};

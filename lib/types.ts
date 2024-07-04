@@ -53,6 +53,7 @@ export interface DynamicRoute {
 // 모달 오픈 클로즈 타입
 export interface ModalProps {
     onClose: () => void;
+    onChange?: () => void;
 }
 
 // 더보기 옵션 타입

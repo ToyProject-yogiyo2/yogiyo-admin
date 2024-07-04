@@ -4,9 +4,72 @@ export const getAxios = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
         "Content-Type": "application/json",
+        SameSite: "lax",
     },
     withCredentials: true,
 });
+
+let lastTimeAccessToken = Date.now();
+const TOKEN_REFRESH_INTERVAL = 10 * 60 * 1000;
+
+setInterval(async () => {
+    const now = Date.now();
+    const diffTimeAccessToken = Math.floor((now - lastTimeAccessToken) / 1000 / 60);
+
+    if (diffTimeAccessToken >= 10) {
+        console.log("**** 10분 경과 토큰 갱신");
+        try {
+            const refreshRes = await getAxios.post("/re-issue");
+            console.log(Date.now().toLocaleString);
+            console.log("**** refreshToken 갱신 완료");
+        } catch (error) {
+            console.error("****토큰 갱신 실패", error);
+        }
+    }
+}, TOKEN_REFRESH_INTERVAL);
+
+getAxios.interceptors.request.use(
+    (config) => {
+        const accessToken = document.cookie
+            .split("; ")
+            .find((cookie) => cookie.startsWith("accessToken="));
+
+        if (accessToken) {
+            config.headers.Authorization = `Bearer ${accessToken.split("=")[1]}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+getAxios.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const { status } = error.response;
+
+        if (status === 401 || status === 403) {
+            const refreshToken = error.response.headers["refresh-token"];
+            console.log("token만료됨");
+
+            if (refreshToken) {
+                try {
+                    const refreshResponse = await getAxios.post("/re-issue");
+                    console.log("axios response use 안쪽", refreshResponse.data);
+                    document.cookie = `accessToken=${refreshResponse.data.accessToken}`;
+                    lastTimeAccessToken = Date.now();
+                    error.config.headers.Authorization = `Bearer ${refreshResponse.data.accessToken}`;
+                    console.log("refreshToken 작동");
+                    return getAxios(error.config);
+                } catch (refreshError) {
+                    console.error("토큰 갱신 실패함", refreshError);
+                }
+            } else {
+                console.log("**예상안되있는 에러");
+            }
+        }
+        return Promise.reject(error);
+    }
+);
 
 export const LogoutBtn = async (userId: number) => {
     const resLogout = await getAxios

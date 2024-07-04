@@ -41,7 +41,7 @@ export const OptionItem = ({ optionGroupId }: optionId) => {
     return (
         <div>
             {optionItem?.menuOptions?.map((option: Options) => (
-                <ItemList option={option}>
+                <ItemList option={option} showImage={false}>
                     <div className="flex" key={option.id}>
                         <button
                             className="px-0.5"

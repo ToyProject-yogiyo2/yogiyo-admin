@@ -1,6 +1,8 @@
 import { optionGroupAtom } from "@/app/recoil/state";
 import { getAxios } from "@/app/services/loginAPI";
+import { Button } from "@/components/common/Button";
 import { Header } from "@/components/common/Header";
+import { ModalLayout } from "@/components/common/ModalLayout";
 import { ModalProps } from "@/lib/types";
 import { useState } from "react";
 import { useRecoilValue } from "recoil";
@@ -47,8 +49,8 @@ export const AddOptionItemModal = ({
         }
     };
     return (
-        <div className="flex flex-col items-center justify-center bg-black bg-opacity-50 fixed inset-0">
-            <div className="flex flex-col bg-white divide-y px-4 border rounded-2xl  w-1/2 h-fit m-20 overflow-hidden">
+        <ModalLayout>
+            <div className="flex flex-col gap-2">
                 <div className="relative">
                     <Header>
                         <span>옵션추가</span>
@@ -61,7 +63,7 @@ export const AddOptionItemModal = ({
                     <div className="flex flex-col py-4">
                         <span>옵션그룹명</span>
                         <input
-                            className="px-2 border rounded-lg"
+                            className="px-4 py-2 border rounded-lg"
                             onChange={handleAddOption}
                             value={filterOptions ? filterOptions?.content : content}
                             id="content"
@@ -72,7 +74,7 @@ export const AddOptionItemModal = ({
                         <span>옵션가격</span>
                         <div>
                             <input
-                                className="border rounded-lg px-2"
+                                className="border rounded-lg px-4 py-2"
                                 onChange={handleAddOption}
                                 value={filterOptions ? filterOptions?.price : price}
                                 id="price"
@@ -82,15 +84,14 @@ export const AddOptionItemModal = ({
                         </div>
                     </div>
                 </div>
-                <div className="flex justify-end">
-                    <button
-                        className="border rounded-xl bg-yogiyo-blue w-full h-10 text-xl font-bold text-white"
-                        onClick={() => addOption()}
-                    >
-                        저장
-                    </button>
-                </div>
+
+                <Button
+                    color="submit"
+                    size="wideButton"
+                    text={"저장"}
+                    onClick={() => addOption()}
+                />
             </div>
-        </div>
+        </ModalLayout>
     );
 };

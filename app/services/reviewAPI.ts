@@ -30,7 +30,7 @@ export const fetchReviews = async ({
         );
         if (res.status === 200) {
             console.log(res.data);
-            return res.data.content;
+            return res.data;
         }
     } catch (error) {
         console.log("리뷰 조회 실패", error);

@@ -57,7 +57,7 @@ const AddOptionGroupModal = ({ onClose, addOptionGroup }: AddOptionGroupProps) =
         return (
             <div className="flex flex-col divide-y">
                 <div className="flex py-4 gap-2">
-                    <div className="flex flex-col items-center border rounded-lg w-full py-4">
+                    <div className="flex flex-col items-center border rounded-lg w-[32rem] py-4">
                         <div
                             className="font-bold text-xl"
                             onClick={() => setOptionType("REQUIRED")}
@@ -100,7 +100,12 @@ const AddOptionGroupModal = ({ onClose, addOptionGroup }: AddOptionGroupProps) =
                         >
                             뒤로
                         </button>
-                        <Button onClick={handleSubmit}>저장</Button>
+                        <Button
+                            onClick={handleSubmit}
+                            text={"저장"}
+                            color="submit"
+                            size="default"
+                        />
                     </div>
                 </div>
             </div>
@@ -109,7 +114,7 @@ const AddOptionGroupModal = ({ onClose, addOptionGroup }: AddOptionGroupProps) =
 
     return (
         <div className="flex flex-col items-center justify-center bg-black bg-opacity-50 fixed inset-0">
-            <div className="flex flex-col bg-white divide-y px-4 border rounded-2xl  w-1/2 h-fit m-20 overflow-hidden">
+            <div className="flex flex-col bg-white divide-y px-4 border rounded-2xl  w-[32rem] h-fit m-20 overflow-hidden">
                 <div className="relative">
                     <div className="flex items-center justify-center py-4">
                         <button className="absolute left-4" onClick={onClose}>
@@ -161,7 +166,12 @@ const AddOptionGroupModal = ({ onClose, addOptionGroup }: AddOptionGroupProps) =
                             </div>
                         </div>
                         <div className="flex justify-end py-4">
-                            <Button onClick={handleNextOption}>다음</Button>
+                            <Button
+                                onClick={handleNextOption}
+                                text={"저장"}
+                                color="submit"
+                                size="default"
+                            />
                         </div>
                     </>
                 )}

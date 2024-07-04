@@ -12,7 +12,7 @@ export const OptionMenuLinkModal = ({ onClose }: ModalProps) => {
     console.log(menuGroups);
     return (
         <div className="flex flex-col items-center justify-center bg-black bg-opacity-50 fixed inset-0">
-            <div className="flex flex-col bg-white divide-y px-4 border rounded-2xl  w-1/2 h-fit m-20 overflow-hidden">
+            <div className="flex flex-col bg-white divide-y px-4 border rounded-2xl  w-[32rem] h-fit m-20 overflow-y-auto">
                 <div className="relative">
                     <Header onClick={onClose}>
                         <button className="absolute left-4" onClick={onClose}>
@@ -39,7 +39,7 @@ export const OptionMenuLinkModal = ({ onClose }: ModalProps) => {
                         </div>
                     ))}
                 </div>
-                <Button>저장</Button>
+                <Button text={"저장"} color="submit" size="wideButton"></Button>
             </div>
         </div>
     );

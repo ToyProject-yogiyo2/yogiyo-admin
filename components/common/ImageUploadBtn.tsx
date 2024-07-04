@@ -23,12 +23,12 @@ export const ImageUploadBtn = ({ onImageSelect }: ImgaeUploadProps) => {
         }
     };
     return (
-        <form>
+        <form className="px-2.5">
             <div>
                 <img
                     src="/Icons/add.png"
-                    width={80}
-                    height={80}
+                    width={40}
+                    height={40}
                     onClick={handleClick}
                     className="cursor-pointer"
                 />
@@ -36,8 +36,8 @@ export const ImageUploadBtn = ({ onImageSelect }: ImgaeUploadProps) => {
                     type="file"
                     accept="image/*"
                     ref={imageRef}
-                    width={70}
-                    height={70}
+                    width={40}
+                    height={40}
                     style={{ display: "none" }}
                     onChange={handleImageUpload}
                     className="border rounded-lg"

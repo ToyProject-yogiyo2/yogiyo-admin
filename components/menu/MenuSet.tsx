@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { MenuNav } from "./MenuNavbar";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { menuItemAtom, navContent, shopIdAtom } from "@/app/recoil/state";
@@ -29,7 +29,6 @@ const MenuSet = ({ onClose }: ModalProps) => {
     const [viewOption, setViewOption] = useState<ViewOption>({});
     const [menuGroup, setMenuGroup] = useRecoilState(menuItemAtom);
     const [selectGroupId, setSelectGroupId] = useState<number | null>(null);
-    // const [menuGroupIds, setMenuGroupIds] = useState([]);
     const selectedNav = useRecoilValue(navContent);
     const shopId = useRecoilValue(shopIdAtom);
 
@@ -75,7 +74,7 @@ const MenuSet = ({ onClose }: ModalProps) => {
     };
 
     // 메뉴 그룹 전체 조회 부분
-    const fetchGroupList = async () => {
+    const fetchGroupList = useCallback(async () => {
         try {
             const res = await GroupList(shopId);
             setMenuGroup(
@@ -89,7 +88,7 @@ const MenuSet = ({ onClose }: ModalProps) => {
         } catch (error) {
             console.error("리스트 업데이트 실패", error);
         }
-    };
+    }, []);
 
     const memoizedGroupList = useMemo(() => {
         return menuGroup;
@@ -98,7 +97,7 @@ const MenuSet = ({ onClose }: ModalProps) => {
     useEffect(() => {
         fetchGroupList();
         console.log("menuSet useEffect");
-    }, [shopId]);
+    }, [fetchGroupList]);
 
     return (
         <div>
@@ -155,14 +154,13 @@ const MenuSet = ({ onClose }: ModalProps) => {
                                                     <option>숨김</option>
                                                 </select>
                                             </>
-
                                             <button
-                                                className="flex items-center "
+                                                className=""
                                                 onClick={() => toggleViewOption(menuItem.id)}
                                             >
                                                 <img src="/Icons/더보기버튼.svg" />
                                                 {viewOption[menuItem.id] && (
-                                                    <ul className="flex flex-col divide-y absolute right-0 w-[200px] border rounded-lg bg-white mt-4 px-2 py-1 z-10">
+                                                    <ul className="flex flex-col divide-y absolute right-0 top-5 w-[200px] border rounded-lg bg-white mt-4 px-2 py-1 z-10">
                                                         <li className="flex justify-start py-2">
                                                             메뉴 수정
                                                         </li>
@@ -190,21 +188,31 @@ const MenuSet = ({ onClose }: ModalProps) => {
                                     </p>
                                     <span>메뉴 순서 변경</span>
                                 </div>
-                                <MenuItemList menuGroupId={menuItem.id} />
+                                <MenuItemList
+                                    menuGroupId={menuItem.id}
+                                    fetchGroupList={fetchGroupList}
+                                />
                             </div>
                         ))}
                     </ItemLayout>
                     {openModal.addMenuGroup && (
-                        <AddMenuGroup onClose={() => handleModalClose("addMenuGroup")} />
+                        <AddMenuGroup
+                            onClose={() => handleModalClose("addMenuGroup")}
+                            fetchGroupList={fetchGroupList}
+                        />
                     )}
                     {openModal.addMenuItem && (
                         <AddMenuItemModal
                             onClose={() => handleModalClose("addMenuItem")}
                             menuGroupId={selectGroupId}
+                            fetchGroupList={fetchGroupList}
                         />
                     )}
                     {openModal.reorderModal && (
-                        <ReorderModal onClose={() => handleModalClose("reorderModal")} />
+                        <ReorderModal
+                            onClose={() => handleModalClose("reorderModal")}
+                            fetchGroupList={fetchGroupList}
+                        />
                     )}
                 </>
             )}

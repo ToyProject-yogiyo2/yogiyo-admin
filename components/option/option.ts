@@ -17,4 +17,5 @@ export interface Options {
     price: number;
     position?: number;
     visible?: string;
+    picture?: string;
 }

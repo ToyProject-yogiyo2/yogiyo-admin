@@ -1,5 +1,5 @@
 import { ModalProps, ViewOption } from "@/lib/types";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AddOptionMenu from "./optionModal/AddOptionGroupModal";
 import { getAxios } from "@/app/services/loginAPI";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -9,22 +9,20 @@ import { AddOptionItemModal } from "./optionModal/AddOptionItemModal";
 import { OptionMenuLinkModal } from "./OptionMenuLinkModal";
 import { ItemLayout } from "../common/ItemLayout";
 import { ItemHeader } from "../common/ItemHeader";
+import { ReorderOptionGroup } from "./optionModal/ReorderOptionGroup";
 
 const OptionMenu = ({ onClose }: ModalProps) => {
     const shopId = useRecoilValue(shopIdAtom);
     const [viewOption, setViewOption] = useState<ViewOption>({});
     const [selectGroupId, setSelectGroupId] = useState<number | null>(null);
     const [optionList, setOptionList] = useRecoilState(optionGroupAtom);
+    const [sortIds, setSortIds] = useState<number[]>([]);
     const [openModal, setOpenModal] = useState({
         addOptionGroupModal: false,
         addOptionItemModal: false,
         optionMenuLinkModal: false,
+        reorderOptionGroupModal: false,
     });
-
-    useEffect(() => {
-        optionGroupList();
-        console.log("optionmenu useEffect");
-    }, [shopId]);
 
     const handleModalOpen = (modalName: string, id?: number) => {
         setOpenModal((prevModal) => ({
@@ -43,6 +41,12 @@ const OptionMenu = ({ onClose }: ModalProps) => {
         }));
     };
 
+    const matchOptionIds = (newIds: number[]) => {
+        const prevIds = optionList.map((option) => option.id);
+        console.log(prevIds);
+        setSortIds(newIds);
+    };
+
     const handleViewOption = (id: number) => {
         setViewOption((prev) => ({
             ...prev,
@@ -51,57 +55,60 @@ const OptionMenu = ({ onClose }: ModalProps) => {
         console.log(id);
     };
 
-    const optionGroupList = useMemo(
-        () => async () => {
-            // 옵션 그룹 전체 조회
+    const optionGroupList = useCallback(async () => {
+        // 옵션 그룹 전체 조회
+        try {
+            const res = await getAxios.get(`/owner/menu-option-group/shop/${shopId}`);
+            if (res.status === 200) {
+                setOptionList(res.data.menuOptionGroups);
+            }
+        } catch (error) {
+            console.error("옵션전체조회 실패", error);
+        }
+    }, [shopId, setOptionList]);
+
+    // 옵션 그룹 추가
+    const addOptionGroup = useCallback(
+        async (
+            optionGroupName: string,
+            optionType: string,
+            count: number,
+            options: { content: string; price: number }[],
+            isPossibleCount: boolean
+        ) => {
             try {
-                const res = await getAxios.get(`/owner/menu-option-group/shop/${shopId}`);
-                if (res.status === 200) {
-                    setOptionList(res.data.menuOptionGroups);
+                const res = await getAxios.post(`/owner/menu-option-group/shop/${shopId}/add`, {
+                    name: optionGroupName,
+                    optionType: optionType,
+                    count: 1,
+                    options: options,
+                    isPossibleCount: isPossibleCount,
+                });
+                if (res.status === 201) {
+                    console.log("요청 성공", res.data);
+                    optionGroupList();
                 }
             } catch (error) {
-                console.error("옵션전체조회 실패", error);
+                console.error("옵션그룹추가실패", error);
             }
         },
         []
     );
 
-    const addOptionGroup = async (
-        optionGroupName: string,
-        optionType: string,
-        count: number,
-        options: { content: string; price: number }[],
-        isPossibleCount: boolean
-    ) => {
-        try {
-            const res = await getAxios.post(`/owner/menu-option-group/shop/${shopId}/add`, {
-                name: optionGroupName,
-                optionType: optionType,
-                count: 1,
-                options: options,
-                isPossibleCount: isPossibleCount,
-            });
-            if (res.status === 201) {
-                console.log("요청 성공", res.data);
-                optionGroupList();
-            }
-        } catch (error) {
-            console.error("옵션그룹추가실패", error);
-        }
-    };
-
-    const deleteOptionGroup = async (optionId: number) => {
+    // 옵션 그룹 삭제
+    const deleteOptionGroup = useCallback(async (optionId: number) => {
         try {
             const res = await getAxios.delete(`owner/menu-option-group/${optionId}/delete`);
             if (res.status === 204) {
-                setOptionList((prevOptionList) =>
-                    prevOptionList.filter((option) => option.id !== optionId)
-                );
+                // setOptionList((prevOptionList) =>
+                //     prevOptionList.filter((option) => option.id !== optionId)
+                // );
+                optionGroupList();
             }
         } catch (error) {
             console.error("삭제 실패", error);
         }
-    };
+    }, []);
 
     // 옵션 그룹 메뉴 연결
     const LinkOptionMenu = () => {
@@ -113,6 +120,10 @@ const OptionMenu = ({ onClose }: ModalProps) => {
             console.error("옵션 그룹 메뉴 연결 실패", error);
         }
     };
+    useEffect(() => {
+        optionGroupList();
+        console.log("optionmenu useEffect");
+    }, [optionGroupList]);
 
     console.log(optionList);
     return (
@@ -123,7 +134,9 @@ const OptionMenu = ({ onClose }: ModalProps) => {
                     className=" border rounded-xl mx-4 px-4 py-2"
                 />
                 <div className="text-custom-gray text-sm">
-                    <button>옵션 순서 변경</button>
+                    <button onClick={() => handleModalOpen("reorderOptionGroupModal")}>
+                        옵션 순서 변경
+                    </button>
                     <button
                         className="border rounded-xl px-4 py-2.5 bg-yogiyo-blue text-white font-bold mx-2"
                         onClick={() => handleModalOpen("addOptionGroupModal")}
@@ -155,7 +168,7 @@ const OptionMenu = ({ onClose }: ModalProps) => {
                                     >
                                         <img src="/Icons/더보기버튼.svg" />
                                         {viewOption[options.id] && (
-                                            <ul className="flex flex-col divide-y absolute top-5 right-0 w-[200px] border rounded-lg bg-white mt-4 px-2 py-1 z-10">
+                                            <ul className="flex flex-col divide-y absolute top-4 right-0 w-[200px] border rounded-lg bg-white mt-4 px-2 py-1 z-10">
                                                 <li className="flex justify-start py-2">
                                                     옵션그룹명 변경
                                                 </li>
@@ -231,6 +244,9 @@ const OptionMenu = ({ onClose }: ModalProps) => {
             )}
             {openModal.optionMenuLinkModal && (
                 <OptionMenuLinkModal onClose={() => handleModalClose("optionMenuLinkModal")} />
+            )}
+            {openModal.reorderOptionGroupModal && (
+                <ReorderOptionGroup onClose={() => handleModalClose("reorderOptionGroupModal")} />
             )}
         </ItemLayout>
     );

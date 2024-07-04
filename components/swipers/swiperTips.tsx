@@ -3,6 +3,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import SwiperCore from "swiper";
 import { Autoplay } from "swiper/modules";
 import "swiper/swiper-bundle.css";
+import { PiPlusBold } from "react-icons/pi";
+import { BsClock } from "react-icons/bs";
 
 SwiperCore.use([Autoplay]);
 
@@ -31,8 +33,8 @@ export const SwiperTips = () => {
                             </span>
 
                             <div className="flex items-center">
-                                <img src="/Icons/add.png" alt="임시" className="w-5 h-5" />
-                                <span className="ml-1 text-xs font-bold text-custom-gray mt-2">
+                                <PiPlusBold size="12" color="rgba(0, 0, 0, 0.6)" />
+                                <span className="text-xs font-bold text-custom-gray">
                                     사용법 자세히보기
                                 </span>
                             </div>
@@ -59,9 +61,9 @@ export const SwiperTips = () => {
                             <span className="mt-3 text-xs font-normal text-font-black">
                                 우리가게 대표메뉴를 설정하고 주문수를 올려보세요!
                             </span>
-                            <div className="flex items-center">
-                                <img src="/Icons/add.png" alt="임시" className="w-5 h-5" />
-                                <span className="ml-1 text-xs font-bold text-custom-gray mt-2">
+                            <div className="flex items-center pt-2">
+                                <PiPlusBold size="16" color="rgba(0, 0, 0, 0.6)" />
+                                <span className="text-sm font-bold text-custom-gray">
                                     사용법 자세히보기
                                 </span>
                             </div>
@@ -88,9 +90,9 @@ export const SwiperTips = () => {
                             <span className="mt-3 text-xs font-normal text-font-black">
                                 가게쿠폰은 우리가게 주문수와 객단가 증가에 효과가 있어요!
                             </span>
-                            <div className="flex items-center">
-                                <img src="/Icons/add.png" alt="임시" className="w-5 h-5" />
-                                <span className="ml-1 text-xs font-bold text-custom-gray mt-2">
+                            <div className="flex items-center pt-2">
+                                <PiPlusBold size="16" color="rgba(0, 0, 0, 0.6)" />
+                                <span className="text-sm font-bold text-custom-gray">
                                     사용법 자세히보기
                                 </span>
                             </div>
@@ -114,9 +116,9 @@ export const SwiperTips = () => {
                             <span className="mt-3 text-xs font-normal text-font-black">
                                 배달요금은 잘 설정하면 고객 부담은 낮아지고, 주문수는 올라요!
                             </span>
-                            <div className="flex items-center">
-                                <img src="/Icons/add.png" alt="임시" className="w-5 h-5" />
-                                <span className="ml-1 text-xs font-bold text-custom-gray mt-2">
+                            <div className="flex items-center pt-2">
+                                <PiPlusBold size="16" color="rgba(0, 0, 0, 0.6)" />
+                                <span className="text-sm font-bold text-custom-gray">
                                     사용법 자세히보기
                                 </span>
                             </div>
@@ -140,9 +142,9 @@ export const SwiperTips = () => {
                             <span className="mt-3 text-xs font-normal text-font-black">
                                 AI로 주문확률이 높은 고객에게 우리가게를 추천해요!
                             </span>
-                            <div className="flex items-center">
-                                <img src="/Icons/add.png" alt="임시" className="w-5 h-5" />
-                                <span className="ml-1 text-xs font-bold text-custom-gray mt-2">
+                            <div className="flex items-center pt-2">
+                                <PiPlusBold size="16" color="rgba(0, 0, 0, 0.6)" />
+                                <span className="text-sm font-bold text-custom-gray">
                                     사용법 자세히보기
                                 </span>
                             </div>
@@ -166,9 +168,9 @@ export const SwiperTips = () => {
                             <span className="mt-3 text-xs font-normal text-font-black">
                                 메뉴의 매력을 느낄 수 있도록 메뉴와 메뉴 설명을 작성해보세요!
                             </span>
-                            <div className="flex items-center">
-                                <img src="/Icons/add.png" alt="임시" className="w-5 h-5" />
-                                <span className="ml-1 text-xs font-bold text-custom-gray mt-2">
+                            <div className="flex items-center pt-2">
+                                <PiPlusBold size="16" color="rgba(0, 0, 0, 0.6)" />
+                                <span className="text-sm font-bold text-custom-gray">
                                     사용법 자세히보기
                                 </span>
                             </div>
