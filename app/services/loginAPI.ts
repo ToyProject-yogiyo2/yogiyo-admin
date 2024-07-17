@@ -20,7 +20,8 @@ setInterval(async () => {
         console.log("**** 10분 경과 토큰 갱신");
         try {
             const refreshRes = await getAxios.post("/re-issue");
-            console.log(Date.now().toLocaleString);
+            const timeStamp = new Date();
+            console.log(timeStamp);
             console.log("**** refreshToken 갱신 완료");
         } catch (error) {
             console.error("****토큰 갱신 실패", error);
@@ -45,6 +46,10 @@ getAxios.interceptors.request.use(
 getAxios.interceptors.response.use(
     (response) => response,
     async (error) => {
+        if (!error.response) {
+            console.error("네트워크 및 서버 응답 없음", error);
+            return Promise.reject(error);
+        }
         const { status } = error.response;
 
         if (status === 401 || status === 403) {

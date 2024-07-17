@@ -54,28 +54,30 @@ export const MenuItemList = ({ menuGroupId, fetchGroupList }: MenuItemListProps)
         return transItems;
     }, [transItems]);
 
-    useEffect(() => {
-        const getItemList = async () => {
-            try {
-                const res = await getAxios.get(`owner/menu-group/${menuGroupId}/menu`);
-                if (res.status === 200) {
-                    setTransItems(
-                        res.data.signatureMenus.map((sm: any) => ({
-                            ...sm,
-                            picture: `https://yogiyo-clone.shop${sm.picture}`,
-                        }))
-                    );
-                }
-            } catch (error) {
-                console.log("리스트 가져오기 실패", error);
+    const getItemList = async () => {
+        try {
+            const res = await getAxios.get(`owner/menu-group/${menuGroupId}/menu`);
+            if (res.status === 200) {
+                setTransItems(
+                    res.data.menus.map((sm: any) => ({
+                        ...sm,
+                        picture: `https://yogiyo-clone.shop${sm.picture}`,
+                    }))
+                );
             }
-            console.log("menuItemList useEffect");
-        };
-    }, [menuGroup]);
+        } catch (error) {
+            console.log("리스트 가져오기 실패", error);
+        }
+    };
+    console.log(transItems);
+
+    useEffect(() => {
+        getItemList();
+    }, []);
 
     return (
         <div>
-            {menuGroup.menus?.map((menuItem: MenusItem) => (
+            {transItems.map((menuItem: MenusItem) => (
                 <ItemList option={menuItem} showImage={true} key={menuItem.id}>
                     <div className="flex items-center">
                         <button className="px-0.5" onClick={() => toggleViewOption(menuItem.id)}>

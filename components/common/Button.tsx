@@ -6,12 +6,13 @@ interface ButtonProps {
     text: string;
     size: Size;
     color: Color;
+    className?: string;
 }
 
-export const Button = ({ text, onClick, color, size }: ButtonProps) => {
+export const Button = ({ text, onClick, color, size, className }: ButtonProps) => {
     return (
         <button
-            className={`${buttonTheme.color[color]},${buttonTheme.theme[size]}`}
+            className={`${buttonTheme.color[color]},${buttonTheme.theme[size]},${className}`}
             onClick={onClick}
         >
             {text}
@@ -27,5 +28,9 @@ const buttonTheme = {
     theme: {
         default: "border rounded-xl px-6 py-2 text-white text-xl font-bold",
         wideButton: "border rounded-xl px-6 py-2 text-white text-xl font-bold w-full",
+    },
+    position: {
+        default: "",
+        sticky: "sticky",
     },
 };

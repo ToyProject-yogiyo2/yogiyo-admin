@@ -3,7 +3,7 @@
 import { menuItemAtom, shopIdAtom } from "@/app/recoil/state";
 import { getAxios } from "@/app/services/loginAPI";
 import { ModalProps } from "@/lib/types";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilValue } from "recoil";
 import MainMenuModal from "./MainMenuModal";
 import { MenusItem } from "../menu/menu";
@@ -65,7 +65,6 @@ const MainMenu = ({ onClose }: ModalProps) => {
     useEffect(() => {
         getSignatureMenu();
     }, [shopId, menuItemAtom]);
-    console.log(mainMenus);
 
     const ifMainMenuNull = () => {
         // 만약 대표메뉴가 없을 때 렌더하기 위한 요소

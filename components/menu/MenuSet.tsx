@@ -13,6 +13,7 @@ import { ReorderModal } from "./menuModal/ReorderModal";
 import { ItemLayout } from "../common/ItemLayout";
 import { ItemHeader } from "../common/ItemHeader";
 import MainMenu from "../mainMenu/MainMenu";
+import { ReorderItemModal } from "./menuModal/ReorderItemModal";
 
 interface Group {
     id: number;
@@ -25,6 +26,7 @@ const MenuSet = ({ onClose }: ModalProps) => {
         addMenuGroup: false,
         addMenuItem: false,
         reorderModal: false,
+        reorderItemModal: false,
     });
     const [viewOption, setViewOption] = useState<ViewOption>({});
     const [menuGroup, setMenuGroup] = useRecoilState(menuItemAtom);
@@ -154,10 +156,7 @@ const MenuSet = ({ onClose }: ModalProps) => {
                                                     <option>숨김</option>
                                                 </select>
                                             </>
-                                            <button
-                                                className=""
-                                                onClick={() => toggleViewOption(menuItem.id)}
-                                            >
+                                            <button onClick={() => toggleViewOption(menuItem.id)}>
                                                 <img src="/Icons/더보기버튼.svg" />
                                                 {viewOption[menuItem.id] && (
                                                     <ul className="flex flex-col divide-y absolute right-0 top-5 w-[200px] border rounded-lg bg-white mt-4 px-2 py-1 z-10">
@@ -186,7 +185,13 @@ const MenuSet = ({ onClose }: ModalProps) => {
                                     >
                                         메뉴 추가
                                     </p>
-                                    <span>메뉴 순서 변경</span>
+                                    <span
+                                        onClick={() =>
+                                            handleModalOpen("reorderItemModal", menuItem.id)
+                                        }
+                                    >
+                                        메뉴 순서 변경
+                                    </span>
                                 </div>
                                 <MenuItemList
                                     menuGroupId={menuItem.id}
@@ -212,6 +217,12 @@ const MenuSet = ({ onClose }: ModalProps) => {
                         <ReorderModal
                             onClose={() => handleModalClose("reorderModal")}
                             fetchGroupList={fetchGroupList}
+                        />
+                    )}
+                    {openModal.reorderItemModal && (
+                        <ReorderItemModal
+                            onClose={() => handleModalClose("reorderItemModal")}
+                            menuGroupId={selectGroupId}
                         />
                     )}
                 </>
