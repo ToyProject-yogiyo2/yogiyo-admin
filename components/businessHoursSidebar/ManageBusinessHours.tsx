@@ -1,5 +1,27 @@
 import React, { useEffect, useState } from "react";
 
+type DaySchedule = {
+    start: string;
+    end: string;
+    breakTime?: {
+        start: string;
+        end: string;
+    };
+};
+
+type BusinessHours = {
+    [key: string]: DaySchedule;
+};
+
+type BreakTime = {
+    start: string;
+    end: string;
+};
+
+type BreakTimes = {
+    [key: string]: BreakTime;
+};
+
 export const ManageBusinessHours = () => {
     // 시간 옵션 생성 함수
     const generateOptions = (items: (string | number | readonly string[] | undefined)[], suffix: string) => {
@@ -13,6 +35,16 @@ export const ManageBusinessHours = () => {
             }
             return null;
         });
+    };
+
+    const dayMap: { [key: string]: string } = {
+        '월요일': 'monday',
+        '화요일': 'tuesday',
+        '수요일': 'wednesday',
+        '목요일': 'thursday',
+        '금요일': 'friday',
+        '토요일': 'saturday',
+        '일요일': 'sunday'
     };
 
     // 시간 옵션 생성
@@ -36,13 +68,25 @@ export const ManageBusinessHours = () => {
         return minutes;
     };
 
+    const [businessHours, setBusinessHours] = useState<BusinessHours>({
+        monday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+        tuesday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+        wednesday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+        thursday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+        friday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+        saturday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+        sunday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+    });
+
+    const [tempBusinessHours, setTempBusinessHours] = useState<BusinessHours>({...businessHours});
+
     // 반응형 대응
     const [maxWidthStyle, setMaxWidthStyle] = useState("936px");
 
     // 수정 버튼 상태관리
     const [isEditMode, setIsEditMode] = useState(false);
-    const [isDailyMode, setIsDailyMode] = useState(true); // 새로운 상태 변수 추가
-    const [breakTimes, setBreakTimes] = useState<{ [key: string]: boolean }>({});
+    const [isDailyMode, setIsDailyMode] = useState(true);
+    const [breakTimes, setBreakTimes] = useState<BreakTimes>({});
 
     useEffect(() => {
         const screenWidth = window.innerWidth;
@@ -57,28 +101,106 @@ export const ManageBusinessHours = () => {
 
     // 수정 버튼 클릭 핸들러
     const handleEditClick = () => setIsEditMode(true);
-    const handleCancelClick = () => setIsEditMode(false);
+    const handleCancelClick = () => {
+        setIsEditMode(false);
+        setTempBusinessHours({...businessHours});
+    };
+
+
+    const handleConfirmClick = () => {
+    const updatedBusinessHours = { ...tempBusinessHours };
+    if (isDailyMode) {
+        // 매일 모드일 때는 모든 요일에 같은 휴게시간을 적용
+        const breakTime = breakTimes['매일'];
+        if (breakTime) {
+            Object.keys(updatedBusinessHours).forEach(day => {
+                updatedBusinessHours[day] = {
+                    ...updatedBusinessHours[day],
+                    breakTime: breakTime
+                };
+            });
+        }
+    } else {
+        // 요일별 모드일 때는 각 요일에 해당하는 휴게시간을 적용
+        Object.keys(breakTimes).forEach(day => {
+            if (updatedBusinessHours[dayMap[day]]) {
+                updatedBusinessHours[dayMap[day]] = {
+                    ...updatedBusinessHours[dayMap[day]],
+                    breakTime: breakTimes[day]
+                };
+            }
+        });
+    }
+    setBusinessHours(updatedBusinessHours);
+    setBreakTimes({});
+    setIsEditMode(false);
+};
+
+
     const handleDailyClick = () => setIsDailyMode(true);
     const handleDifferentDaysClick = () => setIsDailyMode(false);
-    const handleAddBreakTime = (day: string) =>
-        setBreakTimes((prev) => ({ ...prev, [day]: true }));
-    const handleRemoveBreakTime = (day: string) =>
-        setBreakTimes((prev) => ({ ...prev, [day]: false }));
+    const handleAddBreakTime = (day: string) => {
+        setBreakTimes(prev => ({
+            ...prev,
+            [isDailyMode ? '매일' : day]: { start: "오전 12시 00분", end: "오후 1시 00분" }
+        }));
+    };
+    const handleRemoveBreakTime = (day: string) => {
+        setBreakTimes(prev => {
+            const newBreakTimes = { ...prev };
+            delete newBreakTimes[day];
+            return newBreakTimes;
+        });
+    };
 
-    // 시간 선택 컴포넌트
-    const TimeSelection = ({ label }: { label: string }) => (
-        <>
-            <span className="text-sm text-gray-400">{label}</span>
-            <select className="border border-gray-300 text-gray-700 bg-white rounded-md py-2 px-4 mx-2">
-                {generateOptions(generateHourOptions(), "")}
-            </select>
-            <select className="border border-gray-300 text-gray-700 bg-white rounded-md py-2 px-4 mx-2">
-                {generateOptions(generateMinuteOptions(), "")}
-            </select>
-        </>
-    );
+    const handleTimeChange = (day: string, type: 'start' | 'end', value: string) => {
+        setTempBusinessHours(prev => ({
+            ...prev,
+            [day]: { ...prev[day], [type]: value }
+        }));
+        if (isDailyMode) {
+            const updatedHours: BusinessHours = {};
+            for (const key in tempBusinessHours) {
+                updatedHours[key] = { ...tempBusinessHours[key], [type]: value };
+            }
+            setTempBusinessHours(updatedHours);
+        }
+    };
 
-    // 휴게시간 섹션 컴포넌트
+    const handleBreakTimeChange = (day: string, type: 'start' | 'end', value: string) => {
+        setBreakTimes(prev => ({
+            ...prev,
+            [day]: { ...prev[day], [type]: value }
+        }));
+    };
+
+    const TimeSelection = ({ label, day, type, isBreakTime = false }: { label: string, day: string, type: 'start' | 'end', isBreakTime?: boolean }) => {
+        const time = isBreakTime ? breakTimes[day]?.[type] : tempBusinessHours[day]?.[type];
+        const changeHandler = isBreakTime ? handleBreakTimeChange : handleTimeChange;
+    
+        if (!time) return null; // 시간이 설정되지 않았다면 렌더링하지 않음
+    
+        return (
+            <>
+                <span className="text-sm text-gray-400">{label}</span>
+                <select 
+                    className="border border-gray-300 text-gray-700 bg-white rounded-md py-2 px-4 mx-2"
+                    value={time.split(' ')[0] + ' ' + time.split(' ')[1]}
+                    onChange={(e) => changeHandler(day, type, e.target.value + ' ' + time.split(' ')[2])}
+                >
+                    {generateOptions(generateHourOptions(), "")}
+                </select>
+                <select 
+                    className="border border-gray-300 text-gray-700 bg-white rounded-md py-2 px-4 mx-2"
+                    value={time.split(' ')[2]}
+                    onChange={(e) => changeHandler(day, type, time.split(' ')[0] + ' ' + time.split(' ')[1] + ' ' + e.target.value)}
+                >
+                    {generateOptions(generateMinuteOptions(), "")}
+                </select>
+            </>
+        );
+    };
+
     const BreakTimeSection = ({ day }: { day: string }) => (
         <div className="bg-gray-100 rounded-md mt-5 p-4 relative">
             <button
@@ -88,12 +210,11 @@ export const ManageBusinessHours = () => {
                 X
             </button>
             <p className="text-gray-700 text-lg mb-2">휴게시간</p>
-            <TimeSelection label="시작" />
-            <TimeSelection label="종료" />
+            <TimeSelection label="시작" day={day} type="start" isBreakTime={true} />
+            <TimeSelection label="종료" day={day} type="end" isBreakTime={true} />
         </div>
     );
 
-    // 요일 섹션 컴포넌트
     const DaySection = ({ day }: { day: string }) => (
         <div key={day}>
             <div className="flex items-center justify-between mb-6">
@@ -106,12 +227,12 @@ export const ManageBusinessHours = () => {
                     <input type="checkbox" />
                 </div>
             </div>
-            <TimeSelection label="시작" />
-            <TimeSelection label="종료" />
-            <button className="text-blue-500 mt-2" onClick={() => handleAddBreakTime(day)}>
-                + 휴게시간 추가
-            </button>
-            {breakTimes[day] && <BreakTimeSection day={day} />}
+            <TimeSelection label="시작" day={isDailyMode ? 'monday' : dayMap[day]} type="start" />
+            <TimeSelection label="종료" day={isDailyMode ? 'monday' : dayMap[day]} type="end" />
+            <button className="text-blue-500 mt-2" onClick={() => handleAddBreakTime(isDailyMode ? '매일' : day)}>
+    + 휴게시간 추가
+</button>
+{breakTimes[isDailyMode ? '매일' : day] && <BreakTimeSection day={isDailyMode ? '매일' : day} />}
             <div className="border-t border-gray-200 my-5"></div>
         </div>
     );
@@ -134,51 +255,38 @@ export const ManageBusinessHours = () => {
 
             {/* 메인 콘텐츠 영역 */}
             <div className="w-full">
-                <div
-                    style={{ maxWidth: maxWidthStyle }}
-                    className="flex flex-auto flex-col mx-auto"
-                >
+                <div style={{ maxWidth: maxWidthStyle }} className="flex flex-auto flex-col mx-auto">
                     <div className="flex-auto min-w-0" style={{ maxWidth: "936px" }}>
-                        <div
-                            className="flex flex-col mt-8 rounded-lg bg-white"
-                            style={{
-                                border: "1px solid rgba(0, 0, 0, 0.1)",
-                                boxShadow: "rgba(0, 0, 0, 0.1) 0px 1px 6px",
-                            }}
-                        >
+                        <div className="flex flex-col mt-8 rounded-lg bg-white" style={{
+                            border: "1px solid rgba(0, 0, 0, 0.1)",
+                            boxShadow: "rgba(0, 0, 0, 0.1) 0px 1px 6px",
+                        }}>
                             {/* 윗부분 */}
-                            <div
-                                className="pt-8 px-6 pb-6"
-                                style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.1)" }}
-                            >
+                            <div className="pt-8 px-6 pb-6" style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.1)" }}>
                                 <div className="flex items-center">
-                                    <div
-                                        className="flex items-center flex-auto"
-                                        style={{
-                                            minHeight: "2.5rem",
-                                            fontSize: "1.375rem",
-                                            lineHeight: "1.875rem",
-                                            color: "rgba(0, 0, 0, 0.8)",
-                                        }}
-                                    >
+                                    <div className="flex items-center flex-auto" style={{
+                                        minHeight: "2.5rem",
+                                        fontSize: "1.375rem",
+                                        lineHeight: "1.875rem",
+                                        color: "rgba(0, 0, 0, 0.8)",
+                                    }}>
                                         영업시간
                                     </div>
                                     <div className="ml-2 flex">
                                         {!isEditMode && (
-                                            <button
-                                                className="text-blue-500"
-                                                onClick={handleEditClick}
-                                            >
+                                            <button className="text-blue-500" onClick={handleEditClick}>
                                                 수정
                                             </button>
                                         )}
                                         {isEditMode && (
-                                            <button
-                                                className="text-blue-500"
-                                                onClick={handleCancelClick}
-                                            >
-                                                취소
-                                            </button>
+                                            <>
+                                                <button className="text-blue-500 mr-2" onClick={handleCancelClick}>
+                                                    취소
+                                                </button>
+                                                <button className="text-blue-500" onClick={handleConfirmClick}>
+                                                    확인
+                                                </button>
+                                            </>
                                         )}
                                     </div>
                                 </div>
@@ -222,6 +330,14 @@ export const ManageBusinessHours = () => {
                                     ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"].map((day) => (
                                         <div key={day}>
                                             <p className="text-gray-700 text-lg mb-4">{day}</p>
+                                            <p className="text-gray-600 mb-2">
+                                                영업시간: {businessHours[dayMap[day]]?.start || '설정되지 않음'} ~ {businessHours[dayMap[day]]?.end || '설정되지 않음'}
+                                            </p>
+                                            {businessHours[dayMap[day]]?.breakTime && (
+                                                <p className="text-gray-600 mb-2">
+                                                    휴게시간: {businessHours[dayMap[day]]?.breakTime?.start} ~ {businessHours[dayMap[day]]?.breakTime?.end}
+                                                </p>
+                                            )}
                                             <div className="border-t border-gray-200 mb-4"></div>
                                         </div>
                                     ))
