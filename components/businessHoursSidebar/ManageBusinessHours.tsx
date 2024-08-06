@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { shopIdAtom, businessHoursState, tempBusinessHoursState, breakTimesState } from '../../app/recoil/state';
+import { UpdateBusinessHoursRequest, updateShopBusinessHours, getShopBusinessHours } from '../../app/services/shopAPI'
 
 type DaySchedule = {
     start: string;
@@ -22,8 +25,68 @@ type BreakTimes = {
     [key: string]: BreakTime;
 };
 
+const convertApiTimeToLocalFormat = (time: string): string => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const period = hour >= 12 ? '오후' : '오전';
+    const displayHour = hour % 12 || 12;
+    return `${period} ${displayHour}시 ${minutes}분`;
+};
+
 export const ManageBusinessHours = () => {
-    // 시간 옵션 생성 함수
+    const shopId = useRecoilValue(shopIdAtom);
+    const [businessHours, setBusinessHours] = useRecoilState(businessHoursState);
+    const [tempBusinessHours, setTempBusinessHours] = useRecoilState(tempBusinessHoursState);
+    const [breakTimes, setBreakTimes] = useRecoilState(breakTimesState);
+
+    const [maxWidthStyle, setMaxWidthStyle] = React.useState("936px");
+    const [isEditMode, setIsEditMode] = React.useState(false);
+    const [isDailyMode, setIsDailyMode] = React.useState(true);
+
+    useEffect(() => {
+        if (Object.keys(tempBusinessHours).length === 0) {
+            setTempBusinessHours({...businessHours});
+        }
+    }, [businessHours, tempBusinessHours, setTempBusinessHours]);
+
+    useEffect(() => {
+        const fetchBusinessHours = async () => {
+            if (shopId) {
+                try {
+                    const response = await getShopBusinessHours(shopId);
+                    const fetchedBusinessHours = response.businessHours.reduce((acc, hour) => {
+                        acc[hour.dayOfWeek.toLowerCase()] = {
+                            start: convertApiTimeToLocalFormat(hour.openTime),
+                            end: convertApiTimeToLocalFormat(hour.closeTime),
+                            breakTime: hour.breakTimeStart && hour.breakTimeEnd ? {
+                                start: convertApiTimeToLocalFormat(hour.breakTimeStart),
+                                end: convertApiTimeToLocalFormat(hour.breakTimeEnd)
+                            } : undefined
+                        };
+                        return acc;
+                    }, {} as BusinessHours);
+                    setBusinessHours(fetchedBusinessHours);
+                    setTempBusinessHours(fetchedBusinessHours);
+                } catch (error) {
+                    console.error("영업시간 조회 중 오류 발생:", error);
+                }
+            }
+        };
+
+        fetchBusinessHours();
+    }, [shopId, setBusinessHours, setTempBusinessHours]);
+
+    useEffect(() => {
+        const screenWidth = window.innerWidth;
+        if (screenWidth >= 1024) {
+            setMaxWidthStyle("calc(100% - 80px)");
+        } else if (screenWidth >= 768) {
+            setMaxWidthStyle("calc(100% - 64px)");
+        } else {
+            setMaxWidthStyle("936px");
+        }
+    }, []);
+
     const generateOptions = (items: (string | number | readonly string[] | undefined)[], suffix: string) => {
         return items.map((item) => {
             if (item !== null && item !== undefined && typeof item !== 'object') {
@@ -47,7 +110,6 @@ export const ManageBusinessHours = () => {
         '일요일': 'sunday'
     };
 
-    // 시간 옵션 생성
     const generateHourOptions = () => {
         const hours: string[] = [];
         const periods = ["오전", "오후"];
@@ -59,7 +121,6 @@ export const ManageBusinessHours = () => {
         return hours;
     };
 
-    // 분 옵션 생성
     const generateMinuteOptions = () => {
         const minutes = [];
         for (let i = 0; i <= 50; i += 10) {
@@ -68,74 +129,79 @@ export const ManageBusinessHours = () => {
         return minutes;
     };
 
-    const [businessHours, setBusinessHours] = useState<BusinessHours>({
-        monday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-        tuesday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-        wednesday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-        thursday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-        friday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-        saturday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-        sunday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-    });
-
-    const [tempBusinessHours, setTempBusinessHours] = useState<BusinessHours>({...businessHours});
-
-    // 반응형 대응
-    const [maxWidthStyle, setMaxWidthStyle] = useState("936px");
-
-    // 수정 버튼 상태관리
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [isDailyMode, setIsDailyMode] = useState(true);
-    const [breakTimes, setBreakTimes] = useState<BreakTimes>({});
-
-    useEffect(() => {
-        const screenWidth = window.innerWidth;
-        if (screenWidth >= 1024) {
-            setMaxWidthStyle("calc(100% - 80px)");
-        } else if (screenWidth >= 768) {
-            setMaxWidthStyle("calc(100% - 64px)");
-        } else {
-            setMaxWidthStyle("936px");
-        }
-    }, []);
-
-    // 수정 버튼 클릭 핸들러
     const handleEditClick = () => setIsEditMode(true);
     const handleCancelClick = () => {
         setIsEditMode(false);
         setTempBusinessHours({...businessHours});
+        setBreakTimes({});
     };
 
+    const convertToApiTimeFormat = (time: string): string => {
+        const [period, hourStr, minuteStr] = time.split(' ');
+        let hour = parseInt(hourStr);
+        const minute = parseInt(minuteStr);
+    
+        if (period === "오후" && hour !== 12) {
+            hour += 12;
+        } else if (period === "오전" && hour === 12) {
+            hour = 0;
+        }
+    
+        return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
+    };
 
-    const handleConfirmClick = () => {
-    const updatedBusinessHours = { ...tempBusinessHours };
-    if (isDailyMode) {
-        // 매일 모드일 때는 모든 요일에 같은 휴게시간을 적용
-        const breakTime = breakTimes['매일'];
-        if (breakTime) {
-            Object.keys(updatedBusinessHours).forEach(day => {
-                updatedBusinessHours[day] = {
-                    ...updatedBusinessHours[day],
-                    breakTime: breakTime
-                };
+    const handleConfirmClick = async () => {
+        if (!shopId) {
+            console.error("Shop ID is not available");
+            return;
+        }
+
+        const updatedBusinessHours = { ...tempBusinessHours };
+        if (isDailyMode) {
+            const breakTime = breakTimes['매일'];
+            if (breakTime) {
+                Object.keys(updatedBusinessHours).forEach(day => {
+                    updatedBusinessHours[day] = {
+                        ...updatedBusinessHours[day],
+                        breakTime: breakTime
+                    };
+                });
+            }
+        } else {
+            Object.keys(breakTimes).forEach(day => {
+                if (updatedBusinessHours[dayMap[day]]) {
+                    updatedBusinessHours[dayMap[day]] = {
+                        ...updatedBusinessHours[dayMap[day]],
+                        breakTime: breakTimes[day]
+                    };
+                }
             });
         }
-    } else {
-        // 요일별 모드일 때는 각 요일에 해당하는 휴게시간을 적용
-        Object.keys(breakTimes).forEach(day => {
-            if (updatedBusinessHours[dayMap[day]]) {
-                updatedBusinessHours[dayMap[day]] = {
-                    ...updatedBusinessHours[dayMap[day]],
-                    breakTime: breakTimes[day]
-                };
-            }
-        });
-    }
-    setBusinessHours(updatedBusinessHours);
-    setBreakTimes({});
-    setIsEditMode(false);
-};
 
+        const apiBusinessHours = Object.entries(updatedBusinessHours).map(([day, schedule]) => ({
+            dayOfWeek: day.toUpperCase(),
+            openTime: convertToApiTimeFormat(schedule.start),
+            closeTime: convertToApiTimeFormat(schedule.end),
+            breakTimeStart: schedule.breakTime ? convertToApiTimeFormat(schedule.breakTime.start) : null,
+            breakTimeEnd: schedule.breakTime ? convertToApiTimeFormat(schedule.breakTime.end) : null,
+            isOpen: true
+        }));
+
+        const updateRequest: UpdateBusinessHoursRequest = {
+            businessHours: apiBusinessHours
+        };
+
+        try {
+            await updateShopBusinessHours(shopId, updateRequest);
+            console.log("영업시간이 성공적으로 수정되었습니다.");
+            setBusinessHours(updatedBusinessHours);
+            setTempBusinessHours(updatedBusinessHours);
+            setBreakTimes({});
+            setIsEditMode(false);
+        } catch (error) {
+            console.error("영업시간 수정 중 오류 발생:", error);
+        }
+    };
 
     const handleDailyClick = () => setIsDailyMode(true);
     const handleDifferentDaysClick = () => setIsDailyMode(false);
@@ -178,7 +244,7 @@ export const ManageBusinessHours = () => {
         const time = isBreakTime ? breakTimes[day]?.[type] : tempBusinessHours[day]?.[type];
         const changeHandler = isBreakTime ? handleBreakTimeChange : handleTimeChange;
     
-        if (!time) return null; // 시간이 설정되지 않았다면 렌더링하지 않음
+        if (!time) return null;
     
         return (
             <>
@@ -230,9 +296,9 @@ export const ManageBusinessHours = () => {
             <TimeSelection label="시작" day={isDailyMode ? 'monday' : dayMap[day]} type="start" />
             <TimeSelection label="종료" day={isDailyMode ? 'monday' : dayMap[day]} type="end" />
             <button className="text-blue-500 mt-2" onClick={() => handleAddBreakTime(isDailyMode ? '매일' : day)}>
-    + 휴게시간 추가
-</button>
-{breakTimes[isDailyMode ? '매일' : day] && <BreakTimeSection day={isDailyMode ? '매일' : day} />}
+                + 휴게시간 추가
+            </button>
+            {breakTimes[isDailyMode ? '매일' : day] && <BreakTimeSection day={isDailyMode ? '매일' : day} />}
             <div className="border-t border-gray-200 my-5"></div>
         </div>
     );
@@ -242,7 +308,6 @@ export const ManageBusinessHours = () => {
             className="relative flex flex-col min-h-screen overflow-auto z-10 bg-[#F7F7F7]"
             style={{ flex: "1 1 auto", overscrollBehavior: "none", zIndex: 1 }}
         >
-            {/* 네비게이션 바 부분 */}
             <div
                 className="flex items-center w-full px-4 lg:px-6 h-16 bg-white shadow-md"
                 style={{
@@ -253,7 +318,6 @@ export const ManageBusinessHours = () => {
                 {/* 네비게이션 카테고리 넣는 곳 */}
             </div>
 
-            {/* 메인 콘텐츠 영역 */}
             <div className="w-full">
                 <div style={{ maxWidth: maxWidthStyle }} className="flex flex-auto flex-col mx-auto">
                     <div className="flex-auto min-w-0" style={{ maxWidth: "936px" }}>
@@ -261,7 +325,6 @@ export const ManageBusinessHours = () => {
                             border: "1px solid rgba(0, 0, 0, 0.1)",
                             boxShadow: "rgba(0, 0, 0, 0.1) 0px 1px 6px",
                         }}>
-                            {/* 윗부분 */}
                             <div className="pt-8 px-6 pb-6" style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.1)" }}>
                                 <div className="flex items-center">
                                     <div className="flex items-center flex-auto" style={{
@@ -286,13 +349,12 @@ export const ManageBusinessHours = () => {
                                                 <button className="text-blue-500" onClick={handleConfirmClick}>
                                                     확인
                                                 </button>
-                                            </>
+                                                </>
                                         )}
                                     </div>
                                 </div>
                             </div>
 
-                            {/* 중간 부분 */}
                             <div className="mt-6 mx-6 mb-8">
                                 {isEditMode ? (
                                     <div className="mb-6">

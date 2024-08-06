@@ -6,7 +6,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { ManageBusinessHours } from "@/components/businessHoursSidebar/ManageBusinessHours";
 import Footer from "@/components/home/Footer";
 import PauseService from "@/components/businessHoursSidebar/PauseService";
-import HolidaySchedule from "@/components/businessHoursSidebar/HolidaySchedule";
+import {HolidaySchedule} from "@/components/businessHoursSidebar/HolidaySchedule";
 
 import DashboardNavbar from "./DashboardNavbar";
 import DashboardSidebar from "./DashboardSidebar";

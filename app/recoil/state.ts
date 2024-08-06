@@ -1,5 +1,5 @@
 import { userState } from "@/lib/types";
-import { OwnerShopList, TempCloseShopRequest } from "../../app/services/shopAPI";
+import { BusinessHours,OwnerShopList, TempCloseShopRequest } from "../../app/services/shopAPI";
 import { AtomEffect, atom } from "recoil";
 import { AddMenu, AddMenuGroup, MenuItem, MenuList } from "../dashboard/menu/menu";
 import { OptionMenu } from "../dashboard/option/option";
@@ -107,6 +107,33 @@ export const shopIdAtom = atom<number>({
     key: "shopId",
     default: 11111,
 });
+
+export const businessHoursState = atom<BusinessHours>({
+    key: 'businessHoursState',
+    default: {
+      monday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+      tuesday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+      wednesday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+      thursday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+      friday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+      saturday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+      sunday: { start: "오전 9시 00분", end: "오후 6시 00분" },
+    }
+  });
+  
+  export const tempBusinessHoursState = atom<BusinessHours>({
+    key: 'tempBusinessHoursState',
+    default: {}
+  });
+
+
+// 휴게시간
+export const breakTimesState = atom<{[key: string]: {start: string, end: string}}>({
+    key: 'breakTimesState',
+    default: {}
+});
+
+
 
 // 일시정지 상태 저장
 export const tempCloseShopRequestState = atom<TempCloseShopRequest | null>({

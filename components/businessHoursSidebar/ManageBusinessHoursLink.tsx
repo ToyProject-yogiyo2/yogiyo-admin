@@ -2,11 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import { useSetRecoilState } from "recoil";
 import PauseService from "./PauseService";
 import { atom } from "recoil";
-import HolidaySchedule from "./HolidaySchedule";
+import {HolidaySchedule} from "./HolidaySchedule";
 
 interface ManageBusinessHoursLinkProps {
     setSelectedMenu: (menu: string) => void;
 }
+
 
 export const ManageBusinessHoursLink: React.FC<ManageBusinessHoursLinkProps> = ({
     setSelectedMenu,
