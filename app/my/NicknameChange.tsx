@@ -37,11 +37,13 @@ const NickChange = ({ toggleComponent }: NickChangeProps) => {
         }
     };
     return (
-        <div className="flex flex-col p-10 m-auto mt-12 relative">
-            <p className="flex justify-center mb-4 text-xl font-bold">닉네임 변경하기</p>
-            <p className="flex justify-center mb-4 text-base text-font-gray">
+        <div className="flex flex-col p-10 m-auto mt-12 gap-4 relative">
+            <span className="flex justify-center items-center text-xl font-bold">
+                닉네임 변경하기
+            </span>
+            <span className="flex justify-center items-center text-base text-font-gray">
                 닉네임 변경 시 5글자 아래로 유지해주세요!
-            </p>
+            </span>
             <button
                 onClick={toggleComponent}
                 className="border rounded-lg bg-white px-4 py-2 absolute right-10"
@@ -52,7 +54,7 @@ const NickChange = ({ toggleComponent }: NickChangeProps) => {
                 {userNickname && <p className="mt-5">현재 닉네임: {userNickname.nickname}</p>}
                 <div className="flex px-6 py-4">
                     <input
-                        placeholder="변경할 닉네임 적어라"
+                        placeholder="변경할 닉네임을 작성해주세요."
                         value={newNickname}
                         type="text"
                         onChange={handleChange}

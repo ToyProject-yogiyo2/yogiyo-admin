@@ -50,41 +50,42 @@ export const AddOptionItemModal = ({
     };
     return (
         <ModalLayout>
-            <div className="flex flex-col gap-2">
-                <div className="relative">
-                    <Header>
-                        <span>옵션추가</span>
-                        <button className="absolute right-4" onClick={onClose}>
-                            X
-                        </button>
-                    </Header>
-                </div>
-                <div className="flex flex-col mx-2 text-custom-gray text-sm divide-y">
-                    <div className="flex flex-col py-4">
-                        <span>옵션그룹명</span>
-                        <input
-                            className="px-4 py-2 border rounded-lg"
-                            onChange={handleAddOption}
-                            value={filterOptions ? filterOptions?.content : content}
-                            id="content"
-                            type="text"
-                        ></input>
+            <div className="flex flex-col gap-2 h-full">
+                <div className="flex-grow">
+                    <div className="relative">
+                        <Header>
+                            <span>옵션추가</span>
+                            <button className="absolute right-4" onClick={onClose}>
+                                X
+                            </button>
+                        </Header>
                     </div>
-                    <div className="flex flex-col">
-                        <span>옵션가격</span>
-                        <div>
+                    <div className="flex flex-col mx-2 text-custom-gray text-sm divide-y">
+                        <div className="flex flex-col py-4">
+                            <span>옵션그룹명</span>
                             <input
-                                className="border rounded-lg px-4 py-2"
+                                className="px-4 py-2 border rounded-lg"
                                 onChange={handleAddOption}
-                                value={filterOptions ? filterOptions?.price : price}
-                                id="price"
-                                type="number"
+                                value={filterOptions ? filterOptions?.content : content}
+                                id="content"
+                                type="text"
                             ></input>
-                            <span>일천만원</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span>옵션가격</span>
+                            <div>
+                                <input
+                                    className="border rounded-lg px-4 py-2"
+                                    onChange={handleAddOption}
+                                    value={filterOptions ? filterOptions?.price : price}
+                                    id="price"
+                                    type="number"
+                                ></input>
+                                <span className="pl-2 text-base">원</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-
                 <Button
                     color="submit"
                     size="wideButton"

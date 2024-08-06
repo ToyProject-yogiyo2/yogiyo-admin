@@ -4,7 +4,7 @@ import { ModalLayout } from "@/components/common/ModalLayout";
 import { ModalProps } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { DragDropContext, Draggable, DropResult, Droppable } from "react-beautiful-dnd";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import { OptionMenu } from "../option";
 import { changeOptionList } from "@/app/services/optionAPI";
 
@@ -16,6 +16,7 @@ export const ReorderOptionGroup = ({ onClose }: ModalProps) => {
     const [optionGroupIds, setOptionGroupIds] = useState(initialOptionGroup);
 
     console.log(optionGroupList);
+    console.log(initialOptionGroup);
 
     const onDragEnd = ({ source, destination }: DropResult) => {
         if (!destination) return null;
@@ -41,6 +42,7 @@ export const ReorderOptionGroup = ({ onClose }: ModalProps) => {
         };
     }, []);
 
+    // 원본 데이터 수정을 방지하고 react-dnd에 적용시킬 데이터
     const orderedOptionGroup = optionGroupIds.map(
         (id) => optionGroupList.find((item) => item.id === id) as OptionMenu
     );
@@ -52,12 +54,13 @@ export const ReorderOptionGroup = ({ onClose }: ModalProps) => {
             </div>
         );
     };
+
     if (!enabled) {
         return null;
     }
     return (
         <ModalLayout>
-            <div>
+            <div className="flex flex-col h-full">
                 <div className="flex justify-center border-b text-xl font-bold pb-4 relative">
                     <button className="absolute left-4" onClick={onClose}>
                         X
@@ -67,7 +70,7 @@ export const ReorderOptionGroup = ({ onClose }: ModalProps) => {
                 <div className="border rounded-xl text-sm text-custom-gray p-4 my-4 bg-[#f5f5dc]">
                     <span>옵션을 끌어서 원하는 순서로 바꿀 수 있습니다.</span>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex-grow overflow-auto gap-2 scrollbar-hide">
                     <DragDropContext onDragEnd={onDragEnd}>
                         <Droppable droppableId="droppable">
                             {(provided) => (
@@ -80,7 +83,7 @@ export const ReorderOptionGroup = ({ onClose }: ModalProps) => {
                                         >
                                             {(provided) => (
                                                 <div
-                                                    className="border rounded-xl px-4 py-2"
+                                                    className="border rounded-xl px-4 py-2 mb-2"
                                                     ref={provided.innerRef}
                                                     {...provided.draggableProps}
                                                     {...provided.dragHandleProps}
@@ -96,16 +99,15 @@ export const ReorderOptionGroup = ({ onClose }: ModalProps) => {
                         </Droppable>
                     </DragDropContext>
                 </div>
-                <div className="flex justify-center pt-4">
-                    <Button
-                        onClick={() => {
-                            changeOptionList(shopId, optionGroupIds);
-                        }}
-                        text={"저장"}
-                        color="submit"
-                        size="wideButton"
-                    />
-                </div>
+                <Button
+                    onClick={() => {
+                        changeOptionList(shopId, optionGroupIds);
+                    }}
+                    text={"저장"}
+                    color="submit"
+                    size="wideButton"
+                    className="sticky bottom-0"
+                />
             </div>
         </ModalLayout>
     );

@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Options } from "../option/option";
+import { Options } from "../../app/dashboard/option/option";
 
 interface ItemProps {
     children: ReactNode;
@@ -32,7 +32,7 @@ export const ItemList = ({ children, option, showImage }: ItemProps) => {
 
                 <div className="flex flex-col pt-2 pl-2">
                     <span className="text-base font-bold">{option.content}</span>
-                    <span className="text-xs text-custom-gray pb-2">{option.price}</span>
+                    <span className="text-xs text-custom-gray pb-2">{option.price} 원</span>
                 </div>
             </div>
             <div className="relative">

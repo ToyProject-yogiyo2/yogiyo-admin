@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRecoilValue } from "recoil";
 import { AddOptionItemModal } from "./optionModal/AddOptionItemModal";
 import { Options } from "./option";
-import { ItemList } from "../common/ItemList";
+import { ItemList } from "../../../components/common/ItemList";
 
 interface optionId extends ModalProps {
     optionGroupId: number;

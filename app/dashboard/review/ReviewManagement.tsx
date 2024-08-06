@@ -1,16 +1,15 @@
 "use client";
 
-import { FaStar } from "react-icons/fa";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { TotalReviewsAtom, shopIdAtom } from "@/app/recoil/state";
 import TotalReview from "./TotalReview";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import DatePickerComponent from "./DatePicker/DatePickerComponent";
-import { Button } from "../common/Button";
+import { Button } from "../../../components/common/Button";
 import ReviewItem from "./ReviewItem";
 import { fetchReviews } from "@/app/services/reviewAPI";
-import { ItemLayout } from "../common/ItemLayout";
-import { ItemHeader } from "../common/ItemHeader";
+import { ItemLayout } from "../../../components/common/ItemLayout";
+import { ItemHeader } from "../../../components/common/ItemHeader";
 
 export const ReviewManagement = () => {
     const shopId = useRecoilValue(shopIdAtom);

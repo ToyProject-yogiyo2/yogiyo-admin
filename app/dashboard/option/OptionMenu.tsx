@@ -6,10 +6,11 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { menuItemAtom, optionGroupAtom, shopIdAtom } from "@/app/recoil/state";
 import { OptionItem } from "./OptionItem";
 import { AddOptionItemModal } from "./optionModal/AddOptionItemModal";
-import { OptionMenuLinkModal } from "./OptionMenuLinkModal";
-import { ItemLayout } from "../common/ItemLayout";
-import { ItemHeader } from "../common/ItemHeader";
+import { OptionMenuLinkModal } from "./optionModal/OptionMenuLinkModal";
+import { ItemLayout } from "../../../components/common/ItemLayout";
+import { ItemHeader } from "../../../components/common/ItemHeader";
 import { ReorderOptionGroup } from "./optionModal/ReorderOptionGroup";
+import { ReorderOptionItem } from "./optionModal/ReorderOptionItem";
 
 const OptionMenu = ({ onClose }: ModalProps) => {
     const shopId = useRecoilValue(shopIdAtom);
@@ -22,6 +23,7 @@ const OptionMenu = ({ onClose }: ModalProps) => {
         addOptionItemModal: false,
         optionMenuLinkModal: false,
         reorderOptionGroupModal: false,
+        reorderOptionItem: false,
     });
 
     const handleModalOpen = (modalName: string, id?: number) => {
@@ -110,16 +112,6 @@ const OptionMenu = ({ onClose }: ModalProps) => {
         }
     }, []);
 
-    // 옵션 그룹 메뉴 연결
-    const LinkOptionMenu = () => {
-        const menuIds = [];
-        const menuGroupId = useRecoilValue(menuItemAtom);
-        try {
-            const res = getAxios.put(`/owner/menu-option-group//link-menu`);
-        } catch (error) {
-            console.error("옵션 그룹 메뉴 연결 실패", error);
-        }
-    };
     useEffect(() => {
         optionGroupList();
         console.log("optionmenu useEffect");
@@ -200,7 +192,9 @@ const OptionMenu = ({ onClose }: ModalProps) => {
                                         리코타치즈샐러드, 연어샐러드, 닭가슴살샐러드
                                         <button
                                             className="px-2 text-yogiyo-blue"
-                                            onClick={() => handleModalOpen("optionMenuLinkModal")}
+                                            onClick={() =>
+                                                handleModalOpen("optionMenuLinkModal", options.id)
+                                            }
                                         >
                                             메뉴연결
                                         </button>
@@ -218,7 +212,14 @@ const OptionMenu = ({ onClose }: ModalProps) => {
                                         옵션추가
                                     </button>
 
-                                    <span className="text-xs px-2">옵션 순서변경</span>
+                                    <button
+                                        className="text-xs px-2"
+                                        onClick={() =>
+                                            handleModalOpen("reorderOptionItem", options.id)
+                                        }
+                                    >
+                                        옵션 순서변경
+                                    </button>
                                 </div>
 
                                 <OptionItem optionGroupId={options.id} onClose={onClose} />
@@ -243,10 +244,20 @@ const OptionMenu = ({ onClose }: ModalProps) => {
                 />
             )}
             {openModal.optionMenuLinkModal && (
-                <OptionMenuLinkModal onClose={() => handleModalClose("optionMenuLinkModal")} />
+                <OptionMenuLinkModal
+                    onClose={() => handleModalClose("optionMenuLinkModal")}
+                    optionId={selectGroupId}
+                />
             )}
             {openModal.reorderOptionGroupModal && (
                 <ReorderOptionGroup onClose={() => handleModalClose("reorderOptionGroupModal")} />
+            )}
+            {openModal.reorderOptionItem && (
+                <ReorderOptionItem
+                    onClose={() => handleModalClose("reorderOptionItem")}
+                    optionGroupId={selectGroupId}
+                    optionList={optionList}
+                />
             )}
         </ItemLayout>
     );

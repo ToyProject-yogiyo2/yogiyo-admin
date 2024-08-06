@@ -1,6 +1,6 @@
 "use client";
 import { HomeLogo } from "@/components/common/HomeLogo";
-import Footer from "@/components/home/footer";
+import Footer from "@/components/home/Footer";
 import { useRouter } from "next/navigation";
 import { SocialKakao, SocialNaver } from "../services/loginAPI";
 import React from "react";

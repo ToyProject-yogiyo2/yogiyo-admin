@@ -15,7 +15,7 @@ export const Footer = (props: Props) => {
         <footer className="px-[22px] py-6 border border-t">
             <div className="flex flex-col justify-between items-center gap-0 md:flex-row-reverse">
                 <a href="">
-                    <button className="flex items-center justify-center relative w-auto max-w-[480px] h-[40px] rounded-lg px-[14px] border">
+                    <button className="flex items-center justify-center w-auto max-w-[480px] h-[40px] rounded-lg px-[14px] border">
                         <span className="text-sm font-normal mx-0.5 text-font-black">
                             서비스 소개 다운로드
                         </span>

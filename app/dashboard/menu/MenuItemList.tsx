@@ -6,7 +6,7 @@ import { useRecoilValue } from "recoil";
 import { AddMenuItemModal } from "./menuModal/AddMenuItemModal";
 import { getAxios } from "@/app/services/loginAPI";
 import { MenusItem } from "./menu";
-import { ItemList } from "../common/ItemList";
+import { ItemList } from "../../../components/common/ItemList";
 
 interface MenuItemListProps {
     menuGroupId: number;
@@ -69,7 +69,6 @@ export const MenuItemList = ({ menuGroupId, fetchGroupList }: MenuItemListProps)
             console.log("리스트 가져오기 실패", error);
         }
     };
-    console.log(transItems);
 
     useEffect(() => {
         getItemList();

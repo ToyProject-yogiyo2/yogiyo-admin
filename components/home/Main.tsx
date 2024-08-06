@@ -32,7 +32,7 @@ export const MainPage = () => {
                             <OwnerLink />
                             <ServiceCategory />
                         </div>
-                        <div className=" flex flex-col lg:basis-[328px] ">
+                        <div className=" lg:flex lg:flex-col lg:basis-[328px] hidden">
                             <LoginForm />
                             <QuickMenu />
                             <Guide />

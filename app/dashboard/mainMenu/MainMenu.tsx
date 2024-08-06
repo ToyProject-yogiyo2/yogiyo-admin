@@ -7,12 +7,16 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRecoilValue } from "recoil";
 import MainMenuModal from "./MainMenuModal";
 import { MenusItem } from "../menu/menu";
+import { ReorderMainMenuModal } from "./mainMenuModal/ReorderMainMenuModal";
+import { ItemLayout } from "@/components/common/ItemLayout";
+import { ItemHeader } from "@/components/common/ItemHeader";
 
 const MainMenu = ({ onClose }: ModalProps) => {
     const shopId = useRecoilValue(shopIdAtom);
-    const [mainMenus, setMainMenus] = useState([]);
+    const [mainMenus, setMainMenus] = useState<MenusItem[]>([]);
     const [openModal, setOpenModal] = useState({
         MainMenuModal: false,
+        ReorderMainMenu: false,
     });
 
     const handleModalOpen = (modalName: string) => {
@@ -81,21 +85,24 @@ const MainMenu = ({ onClose }: ModalProps) => {
     };
 
     return (
-        <div className="my-8 mx-4">
-            <div className="border rounded-lg bg-white w-full h-auto">
-                <div className="flex justify-between py-4 px-4">
-                    <span className="font-bold text-lg">대표메뉴</span>
-                    <div className="flex text-sm text-custom-gray">
-                        <button className="px-2 py-2">순서 변경</button>
-                        <button
-                            className="border rounded-lg bg-yogiyo-blue px-2 py-2 text-white"
-                            onClick={() => handleModalOpen("MainMenuModal")}
-                        >
-                            대표 메뉴 설정
-                        </button>
-                    </div>
+        <ItemLayout>
+            <ItemHeader>
+                <span className="flex items-center font-bold text-xl pl-4">대표메뉴</span>
+                <div className="flex text-sm text-custom-gray pr-4">
+                    <button
+                        className="px-2 py-2"
+                        onClick={() => handleModalOpen("ReorderMainMenu")}
+                    >
+                        순서 변경
+                    </button>
+                    <button
+                        className="border rounded-lg bg-yogiyo-blue px-2 py-2 text-white"
+                        onClick={() => handleModalOpen("MainMenuModal")}
+                    >
+                        대표 메뉴 설정
+                    </button>
                 </div>
-            </div>
+            </ItemHeader>
             <div className="border rounded-lg bg-white w-full h-auto mt-4 px-2 py-2">
                 <div>
                     {mainMenus.length === 0 ? (
@@ -105,7 +112,7 @@ const MainMenu = ({ onClose }: ModalProps) => {
                             {memoizedMainMenu.map((item: MenusItem) => (
                                 <div className="" key={item.id}>
                                     <div className="flex items-center justify-between border-b">
-                                        <div className="flex">
+                                        <div className="flex gap-2 py-2">
                                             <img
                                                 src={item.picture}
                                                 className="border rounded-lg mx-1 my-1 w-[48px] h-[48px]"
@@ -115,13 +122,13 @@ const MainMenu = ({ onClose }: ModalProps) => {
                                                     {item.name}
                                                 </span>
                                                 <span className="text-lg text-custom-gray">
-                                                    {item.price}
+                                                    {item.price} 원
                                                 </span>
                                             </div>
                                         </div>
                                         <div>
                                             <button
-                                                className="flex items-center mr-4 px-4 border rounded-xl"
+                                                className="flex items-center mr-4 px-4 py-2 border rounded-xl"
                                                 value={item.id}
                                                 onClick={() => deleteMainMenu(item.id)}
                                             >
@@ -141,7 +148,14 @@ const MainMenu = ({ onClose }: ModalProps) => {
                     fetchedMainMenu={getSignatureMenu}
                 />
             )}
-        </div>
+            {openModal.ReorderMainMenu && (
+                <ReorderMainMenuModal
+                    onClose={() => handleModalClose("ReorderMainMenu")}
+                    fetchedMainMenu={getSignatureMenu}
+                    mainMenu={mainMenus}
+                />
+            )}
+        </ItemLayout>
     );
 };
 

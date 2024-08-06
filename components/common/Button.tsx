@@ -7,13 +7,15 @@ interface ButtonProps {
     size: Size;
     color: Color;
     className?: string;
+    disabled?: boolean;
 }
 
-export const Button = ({ text, onClick, color, size, className }: ButtonProps) => {
+export const Button = ({ text, onClick, color, size, className, disabled }: ButtonProps) => {
     return (
         <button
             className={`${buttonTheme.color[color]},${buttonTheme.theme[size]},${className}`}
             onClick={onClick}
+            disabled={disabled}
         >
             {text}
         </button>

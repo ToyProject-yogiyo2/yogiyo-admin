@@ -1,5 +1,5 @@
 import { FaStar } from "react-icons/fa";
-import { Button } from "../common/Button";
+import { Button } from "../../../components/common/Button";
 import { getAxios } from "@/app/services/loginAPI";
 import React, { useState } from "react";
 import { patchReply } from "@/app/services/reviewAPI";

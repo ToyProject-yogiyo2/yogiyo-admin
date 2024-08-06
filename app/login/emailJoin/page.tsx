@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { emailJoin } from "@/app/services/loginAPI";
-import Footer from "@/components/home/footer";
+import Footer from "@/components/home/Footer";
 
 import { HomeLogo } from "@/components/common/HomeLogo";
 import { useRouter } from "next/navigation";
@@ -103,18 +103,8 @@ const EmailJoin = () => {
                             회원가입
                         </button>
                     </div>
-
-                    <div className="flex justify-between">
-                        <label className="h-fit text-xs mt-8">
-                            <input
-                                className="relative inline-flex flex-col flex-none h-auto cursor-pointer"
-                                type="checkbox"
-                            />
-                        </label>
-                    </div>
                 </div>
             </div>
-            <Footer />
         </div>
     );
 };

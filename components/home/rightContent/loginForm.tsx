@@ -95,13 +95,15 @@ export const LoginForm = () => {
                                 </span>
                             </Link>
                             <div className="flex justify-between text-xs font-bold text-[#d9d9d9]">
-                                <Link href="/">
-                                    <span>아이디 </span>
-                                </Link>
-                                /
-                                <Link href="/">
-                                    <span> 비밀번호 찾기</span>
-                                </Link>
+                                <div className="flex gap-2">
+                                    <Link href="/">
+                                        <span>아이디 </span>
+                                    </Link>
+                                    /
+                                    <Link href="/">
+                                        <span> 비밀번호 찾기</span>
+                                    </Link>
+                                </div>
                                 <Link href="/login/emailJoin">회원가입</Link>
                             </div>
                         </div>

@@ -6,8 +6,8 @@ import { OwnerShopList, ShopList } from "../services/shopAPI";
 import DashboardModal from "./DashboardModal";
 import Link from "next/link";
 import { ManageBusinessHoursLink } from "../../components/businessHoursSidebar/ManageBusinessHoursLink";
-import MenuGroup from "../../components/menuSidebar/MenuGroup";
-import { ReviewTab } from "../../components/menuSidebar/ReviewTab";
+import MenuGroup from "./menuSidebar/MenuGroup";
+import { ReviewTab } from "./menuSidebar/ReviewTab";
 
 // DashboardSidebar 컴포넌트의 props 타입 정의
 interface DashboardSidebarProps {

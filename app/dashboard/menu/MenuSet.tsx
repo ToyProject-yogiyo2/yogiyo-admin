@@ -10,8 +10,8 @@ import { MenuItemList } from "./MenuItemList";
 import OptionMenu from "../option/OptionMenu";
 import AddMenuGroup from "./menuModal/AddMenuGroupModal";
 import { ReorderModal } from "./menuModal/ReorderModal";
-import { ItemLayout } from "../common/ItemLayout";
-import { ItemHeader } from "../common/ItemHeader";
+import { ItemLayout } from "../../../components/common/ItemLayout";
+import { ItemHeader } from "../../../components/common/ItemHeader";
 import MainMenu from "../mainMenu/MainMenu";
 import { ReorderItemModal } from "./menuModal/ReorderItemModal";
 
@@ -178,7 +178,7 @@ const MenuSet = ({ onClose }: ModalProps) => {
                                     </div>
                                     {/* 판매, 품절 등 드롭다운 메뉴 */}
                                 </div>
-                                <div className="flex border-t py-4 text-sm gap-2.5">
+                                <div className="flex border-t py-4 text-sm gap-2.5 cursor-pointer">
                                     <p
                                         className="text-yogiyo-blue"
                                         onClick={() => handleModalOpen("addMenuItem", menuItem.id)}
