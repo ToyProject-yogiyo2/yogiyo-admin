@@ -54,7 +54,7 @@ getAxios.interceptors.response.use(
 
             if (refreshToken) {
                 try {
-                    const refreshResponse = await getAxios.post("/re-issue");
+                    const refreshResponse = await getAxios.post(`/re-issue`);
                     console.log("axios response use 안쪽", refreshResponse.data);
                     document.cookie = `accessToken=${refreshResponse.data.accessToken}`;
                     lastTimeAccessToken = Date.now();
