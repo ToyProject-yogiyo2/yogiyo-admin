@@ -43,7 +43,6 @@ export const ManageBusinessHours = () => {
     const [maxWidthStyle, setMaxWidthStyle] = React.useState("936px");
     const [isEditMode, setIsEditMode] = React.useState(false);
     const [isDailyMode, setIsDailyMode] = React.useState(true);
-    const [is24Hours, setIs24Hours] = useState<{ [key: string]: boolean }>({});
 
     useEffect(() => {
         if (Object.keys(tempBusinessHours).length === 0) {
@@ -137,7 +136,6 @@ export const ManageBusinessHours = () => {
         setIsEditMode(false);
         setTempBusinessHours({...businessHours});
         setBreakTimes({});
-        setIs24Hours({});
     };
 
     const convertToApiTimeFormat = (time: string): string => {
@@ -176,8 +174,7 @@ export const ManageBusinessHours = () => {
                 const englishDay = dayMap[day];
                 updatedBusinessHours[englishDay] = {
                     ...updatedBusinessHours[englishDay],
-                    breakTime: breakTimes[englishDay],
-                    is24Hours: updatedBusinessHours[englishDay].is24Hours
+                    breakTime: breakTimes[day],
                 };
             });
         }
@@ -227,20 +224,18 @@ export const ManageBusinessHours = () => {
         setTempBusinessHours(prev => {
             const updatedHours = { ...prev };
             if (isDailyMode) {
-                // 매일 모드일 때는 모든 요일에 적용
                 Object.keys(updatedHours).forEach(key => {
                     updatedHours[key] = { 
                         ...updatedHours[key], 
                         [type]: value,
-                        is24Hours: false // 시간을 수동으로 변경하면 24시간 모드 해제
+                        is24Hours: false
                     };
                 });
             } else {
-                // 요일별 모드일 때는 해당 요일만 변경
                 updatedHours[day] = { 
                     ...updatedHours[day], 
                     [type]: value,
-                    is24Hours: false // 시간을 수동으로 변경하면 24시간 모드 해제
+                    is24Hours: false
                 };
             }
             return updatedHours;
@@ -251,7 +246,6 @@ export const ManageBusinessHours = () => {
         setTempBusinessHours(prev => {
             const updatedHours = { ...prev };
             if (isDailyMode) {
-                // 매일 모드일 때는 모든 요일에 적용
                 Object.keys(updatedHours).forEach(key => {
                     updatedHours[key] = { 
                         ...updatedHours[key], 
@@ -261,7 +255,6 @@ export const ManageBusinessHours = () => {
                     };
                 });
             } else {
-                // 요일별 모드일 때는 해당 요일만 변경
                 updatedHours[day] = { 
                     ...updatedHours[day], 
                     is24Hours: !updatedHours[day].is24Hours,
