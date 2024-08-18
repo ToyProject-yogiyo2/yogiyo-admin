@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { shopIdAtom, businessHoursState, tempBusinessHoursState, breakTimesState } from '../../app/recoil/state';
 import { UpdateBusinessHoursRequest, updateShopBusinessHours, getShopBusinessHours } from '../../app/services/shopAPI'
@@ -6,6 +6,7 @@ import { UpdateBusinessHoursRequest, updateShopBusinessHours, getShopBusinessHou
 type DaySchedule = {
     start: string;
     end: string;
+    is24Hours: boolean;
     breakTime?: {
         start: string;
         end: string;
@@ -42,6 +43,7 @@ export const ManageBusinessHours = () => {
     const [maxWidthStyle, setMaxWidthStyle] = React.useState("936px");
     const [isEditMode, setIsEditMode] = React.useState(false);
     const [isDailyMode, setIsDailyMode] = React.useState(true);
+    const [is24Hours, setIs24Hours] = useState<{ [key: string]: boolean }>({});
 
     useEffect(() => {
         if (Object.keys(tempBusinessHours).length === 0) {
@@ -58,6 +60,7 @@ export const ManageBusinessHours = () => {
                         acc[hour.dayOfWeek.toLowerCase()] = {
                             start: convertApiTimeToLocalFormat(hour.openTime),
                             end: convertApiTimeToLocalFormat(hour.closeTime),
+                            is24Hours: hour.openTime === "00:00:00" && hour.closeTime === "23:59:59",
                             breakTime: hour.breakTimeStart && hour.breakTimeEnd ? {
                                 start: convertApiTimeToLocalFormat(hour.breakTimeStart),
                                 end: convertApiTimeToLocalFormat(hour.breakTimeEnd)
@@ -134,6 +137,7 @@ export const ManageBusinessHours = () => {
         setIsEditMode(false);
         setTempBusinessHours({...businessHours});
         setBreakTimes({});
+        setIs24Hours({});
     };
 
     const convertToApiTimeFormat = (time: string): string => {
@@ -159,32 +163,33 @@ export const ManageBusinessHours = () => {
         const updatedBusinessHours = { ...tempBusinessHours };
         if (isDailyMode) {
             const breakTime = breakTimes['매일'];
-            if (breakTime) {
-                Object.keys(updatedBusinessHours).forEach(day => {
-                    updatedBusinessHours[day] = {
-                        ...updatedBusinessHours[day],
-                        breakTime: breakTime
-                    };
-                });
-            }
+            const is24Hour = updatedBusinessHours['monday'].is24Hours;
+            Object.keys(updatedBusinessHours).forEach(day => {
+                updatedBusinessHours[day] = {
+                    ...updatedBusinessHours[day],
+                    breakTime: breakTime,
+                    is24Hours: is24Hour
+                };
+            });
         } else {
-            Object.keys(breakTimes).forEach(day => {
-                if (updatedBusinessHours[dayMap[day]]) {
-                    updatedBusinessHours[dayMap[day]] = {
-                        ...updatedBusinessHours[dayMap[day]],
-                        breakTime: breakTimes[day]
-                    };
-                }
+            Object.keys(dayMap).forEach(day => {
+                const englishDay = dayMap[day];
+                updatedBusinessHours[englishDay] = {
+                    ...updatedBusinessHours[englishDay],
+                    breakTime: breakTimes[englishDay],
+                    is24Hours: updatedBusinessHours[englishDay].is24Hours
+                };
             });
         }
 
         const apiBusinessHours = Object.entries(updatedBusinessHours).map(([day, schedule]) => ({
             dayOfWeek: day.toUpperCase(),
-            openTime: convertToApiTimeFormat(schedule.start),
-            closeTime: convertToApiTimeFormat(schedule.end),
+            openTime: schedule.is24Hours ? "00:00:00" : convertToApiTimeFormat(schedule.start),
+            closeTime: schedule.is24Hours ? "23:59:59" : convertToApiTimeFormat(schedule.end),
             breakTimeStart: schedule.breakTime ? convertToApiTimeFormat(schedule.breakTime.start) : null,
             breakTimeEnd: schedule.breakTime ? convertToApiTimeFormat(schedule.breakTime.end) : null,
-            isOpen: true
+            isOpen: true,
+            is24Hours: schedule.is24Hours
         }));
 
         const updateRequest: UpdateBusinessHoursRequest = {
@@ -196,7 +201,6 @@ export const ManageBusinessHours = () => {
             console.log("영업시간이 성공적으로 수정되었습니다.");
             setBusinessHours(updatedBusinessHours);
             setTempBusinessHours(updatedBusinessHours);
-            setBreakTimes({});
             setIsEditMode(false);
         } catch (error) {
             console.error("영업시간 수정 중 오류 발생:", error);
@@ -220,29 +224,65 @@ export const ManageBusinessHours = () => {
     };
 
     const handleTimeChange = (day: string, type: 'start' | 'end', value: string) => {
-        setTempBusinessHours(prev => ({
-            ...prev,
-            [day]: { ...prev[day], [type]: value }
-        }));
-        if (isDailyMode) {
-            const updatedHours: BusinessHours = {};
-            for (const key in tempBusinessHours) {
-                updatedHours[key] = { ...tempBusinessHours[key], [type]: value };
+        setTempBusinessHours(prev => {
+            const updatedHours = { ...prev };
+            if (isDailyMode) {
+                // 매일 모드일 때는 모든 요일에 적용
+                Object.keys(updatedHours).forEach(key => {
+                    updatedHours[key] = { 
+                        ...updatedHours[key], 
+                        [type]: value,
+                        is24Hours: false // 시간을 수동으로 변경하면 24시간 모드 해제
+                    };
+                });
+            } else {
+                // 요일별 모드일 때는 해당 요일만 변경
+                updatedHours[day] = { 
+                    ...updatedHours[day], 
+                    [type]: value,
+                    is24Hours: false // 시간을 수동으로 변경하면 24시간 모드 해제
+                };
             }
-            setTempBusinessHours(updatedHours);
-        }
+            return updatedHours;
+        });
+    };
+
+    const handle24HoursChange = (day: string) => {
+        setTempBusinessHours(prev => {
+            const updatedHours = { ...prev };
+            if (isDailyMode) {
+                // 매일 모드일 때는 모든 요일에 적용
+                Object.keys(updatedHours).forEach(key => {
+                    updatedHours[key] = { 
+                        ...updatedHours[key], 
+                        is24Hours: !updatedHours[key].is24Hours,
+                        start: !updatedHours[key].is24Hours ? '오전 12시 00분' : '오전 9시 00분',
+                        end: !updatedHours[key].is24Hours ? '오전 12시 00분' : '오후 6시 00분'
+                    };
+                });
+            } else {
+                // 요일별 모드일 때는 해당 요일만 변경
+                updatedHours[day] = { 
+                    ...updatedHours[day], 
+                    is24Hours: !updatedHours[day].is24Hours,
+                    start: !updatedHours[day].is24Hours ? '오전 12시 00분' : '오전 9시 00분',
+                    end: !updatedHours[day].is24Hours ? '오전 12시 00분' : '오후 6시 00분'
+                };
+            }
+            return updatedHours;
+        });
     };
 
     const handleBreakTimeChange = (day: string, type: 'start' | 'end', value: string) => {
         setBreakTimes(prev => ({
             ...prev,
-            [day]: { ...prev[day], [type]: value }
+            [isDailyMode ? '매일' : day]: { ...prev[isDailyMode ? '매일' : day], [type]: value }
         }));
     };
 
-    const TimeSelection = ({ label, day, type, isBreakTime = false }: { label: string, day: string, type: 'start' | 'end', isBreakTime?: boolean }) => {
-        const time = isBreakTime ? breakTimes[day]?.[type] : tempBusinessHours[day]?.[type];
-        const changeHandler = isBreakTime ? handleBreakTimeChange : handleTimeChange;
+    const TimeSelection = ({ label, day, type }: { label: string, day: string, type: 'start' | 'end' }) => {
+        const time = tempBusinessHours[day]?.[type];
+        const is24Hour = tempBusinessHours[day]?.is24Hours;
     
         if (!time) return null;
     
@@ -252,14 +292,16 @@ export const ManageBusinessHours = () => {
                 <select 
                     className="border border-gray-300 text-gray-700 bg-white rounded-md py-2 px-4 mx-2"
                     value={time.split(' ')[0] + ' ' + time.split(' ')[1]}
-                    onChange={(e) => changeHandler(day, type, e.target.value + ' ' + time.split(' ')[2])}
+                    onChange={(e) => handleTimeChange(day, type, e.target.value + ' ' + time.split(' ')[2])}
+                    disabled={is24Hour}
                 >
                     {generateOptions(generateHourOptions(), "")}
                 </select>
                 <select 
                     className="border border-gray-300 text-gray-700 bg-white rounded-md py-2 px-4 mx-2"
                     value={time.split(' ')[2]}
-                    onChange={(e) => changeHandler(day, type, time.split(' ')[0] + ' ' + time.split(' ')[1] + ' ' + e.target.value)}
+                    onChange={(e) => handleTimeChange(day, type, time.split(' ')[0] + ' ' + time.split(' ')[1] + ' ' + e.target.value)}
+                    disabled={is24Hour}
                 >
                     {generateOptions(generateMinuteOptions(), "")}
                 </select>
@@ -267,41 +309,92 @@ export const ManageBusinessHours = () => {
         );
     };
 
-    const BreakTimeSection = ({ day }: { day: string }) => (
-        <div className="bg-gray-100 rounded-md mt-5 p-4 relative">
-            <button
-                className="absolute top-2 right-2"
-                onClick={() => handleRemoveBreakTime(day)}
-            >
-                X
-            </button>
-            <p className="text-gray-700 text-lg mb-2">휴게시간</p>
-            <TimeSelection label="시작" day={day} type="start" isBreakTime={true} />
-            <TimeSelection label="종료" day={day} type="end" isBreakTime={true} />
-        </div>
-    );
-
-    const DaySection = ({ day }: { day: string }) => (
-        <div key={day}>
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <p className="text-gray-700 text-lg inline-block mr-2">{day}</p>
-                    <p className="text-gray-700 text-lg inline-block mr-4">영업일</p>
-                </div>
+    const BreakTimeSection = ({ day }: { day: string }) => {
+        const breakTime = breakTimes[isDailyMode ? '매일' : day];
+        if (!breakTime) return null;
+    
+        return (
+            <div className="bg-gray-100 rounded-md mt-5 p-4 relative">
+                <button
+                    className="absolute top-2 right-2"
+                    onClick={() => handleRemoveBreakTime(isDailyMode ? '매일' : day)}
+                >
+                    X
+                </button>
+                <p className="text-gray-700 text-lg mb-2">휴게시간</p>
                 <div className="flex items-center">
-                    <p className="text-gray-700 text-lg mr-2">24시간</p>
-                    <input type="checkbox" />
+                    <span className="text-sm text-gray-400 mr-2">시작</span>
+                    <select 
+                        className="border border-gray-300 text-gray-700 bg-white rounded-md py-2 px-4 mr-2"
+                        value={breakTime.start.split(' ')[0] + ' ' + breakTime.start.split(' ')[1]}
+                        onChange={(e) => handleBreakTimeChange(day, 'start', e.target.value + ' ' + breakTime.start.split(' ')[2])}
+                    >
+                        {generateOptions(generateHourOptions(), "")}
+                    </select>
+                    <select
+                        className="border border-gray-300 text-gray-700 bg-white rounded-md py-2 px-4 mr-4"
+                        value={breakTime.start.split(' ')[2]}
+                        onChange={(e) => handleBreakTimeChange(day, 'start', breakTime.start.split(' ')[0] + ' ' + breakTime.start.split(' ')[1] + ' ' + e.target.value)}
+                    >
+                        {generateOptions(generateMinuteOptions(), "")}
+                    </select>
+                    <span className="text-sm text-gray-400 mr-2">종료</span>
+                    <select 
+                        className="border border-gray-300 text-gray-700 bg-white rounded-md py-2 px-4 mr-2"
+                        value={breakTime.end.split(' ')[0] + ' ' + breakTime.end.split(' ')[1]}
+                        onChange={(e) => handleBreakTimeChange(day, 'end', e.target.value + ' ' + breakTime.end.split(' ')[2])}
+                    >
+                        {generateOptions(generateHourOptions(), "")}
+                    </select>
+                    <select 
+                        className="border border-gray-300 text-gray-700 bg-white rounded-md py-2 px-4"
+                        value={breakTime.end.split(' ')[2]}
+                        onChange={(e) => handleBreakTimeChange(day, 'end', breakTime.end.split(' ')[0] + ' ' + breakTime.end.split(' ')[1] + ' ' + e.target.value)}
+                    >
+                        {generateOptions(generateMinuteOptions(), "")}
+                    </select>
                 </div>
             </div>
-            <TimeSelection label="시작" day={isDailyMode ? 'monday' : dayMap[day]} type="start" />
-            <TimeSelection label="종료" day={isDailyMode ? 'monday' : dayMap[day]} type="end" />
-            <button className="text-blue-500 mt-2" onClick={() => handleAddBreakTime(isDailyMode ? '매일' : day)}>
-                + 휴게시간 추가
-            </button>
-            {breakTimes[isDailyMode ? '매일' : day] && <BreakTimeSection day={isDailyMode ? '매일' : day} />}
-            <div className="border-t border-gray-200 my-5"></div>
-        </div>
-    );
+        );
+    };
+
+    const DaySection = ({ day }: { day: string }) => {
+        const actualDay = isDailyMode ? 'monday' : dayMap[day];
+        const is24Hour = tempBusinessHours[actualDay]?.is24Hours;
+    
+        return (
+            <div key={day}>
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <p className="text-gray-700 text-lg inline-block mr-2">{day}</p>
+                        <p className="text-gray-700 text-lg inline-block mr-4">영업일</p>
+                    </div>
+                    <div className="flex items-center">
+                        <p className="text-gray-700 text-lg mr-2">24시간</p>
+                        <input 
+                            type="checkbox" 
+                            checked={is24Hour}
+                            onChange={() => handle24HoursChange(actualDay)}
+                            className="form-checkbox h-5 w-5 text-blue-600"
+                        />
+                    </div>
+                </div>
+                {is24Hour ? (
+                    <p className="text-gray-600 mb-2">영업시간: 24시간</p>
+                ) : (
+                    <>
+                        <TimeSelection label="시작" day={actualDay} type="start" />
+                        <TimeSelection label="종료" day={actualDay} type="end" />
+                    </>
+                )}
+                <button className="text-blue-500 mt-2" onClick={() => handleAddBreakTime(isDailyMode ? '매일' : day)}>
+                    + 휴게시간 추가
+                </button>
+                {breakTimes[isDailyMode ? '매일' : day] && <BreakTimeSection day={isDailyMode ? '매일' : day} />}
+                <div className="border-t border-gray-200 my-5"></div>
+            </div>
+        );
+    };
 
     return (
         <div
@@ -349,7 +442,7 @@ export const ManageBusinessHours = () => {
                                                 <button className="text-blue-500" onClick={handleConfirmClick}>
                                                     확인
                                                 </button>
-                                                </>
+                                            </>
                                         )}
                                     </div>
                                 </div>
@@ -393,7 +486,11 @@ export const ManageBusinessHours = () => {
                                         <div key={day}>
                                             <p className="text-gray-700 text-lg mb-4">{day}</p>
                                             <p className="text-gray-600 mb-2">
-                                                영업시간: {businessHours[dayMap[day]]?.start || '설정되지 않음'} ~ {businessHours[dayMap[day]]?.end || '설정되지 않음'}
+                                                영업시간: {
+                                                    businessHours[dayMap[day]]?.is24Hours 
+                                                    ? '24시간' 
+                                                    : `${businessHours[dayMap[day]]?.start || '설정되지 않음'} ~ ${businessHours[dayMap[day]]?.end || '설정되지 않음'}`
+                                                }
                                             </p>
                                             {businessHours[dayMap[day]]?.breakTime && (
                                                 <p className="text-gray-600 mb-2">

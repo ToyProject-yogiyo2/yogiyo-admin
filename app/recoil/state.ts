@@ -108,22 +108,22 @@ export const shopIdAtom = atom<number>({
     default: 11111,
 });
 
-export const businessHoursState = atom<BusinessHours>({
+export const businessHoursState = atom({
     key: 'businessHoursState',
     default: {
-      monday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-      tuesday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-      wednesday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-      thursday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-      friday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-      saturday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-      sunday: { start: "오전 9시 00분", end: "오후 6시 00분" },
-    }
-  });
+        monday: { start: "오전 9시 00분", end: "오후 6시 00분", is24Hours: false },
+        tuesday: { start: "오전 9시 00분", end: "오후 6시 00분", is24Hours: false },
+        wednesday: { start: "오전 9시 00분", end: "오후 6시 00분", is24Hours: false },
+        thursday: { start: "오전 9시 00분", end: "오후 6시 00분", is24Hours: false },
+        friday: { start: "오전 9시 00분", end: "오후 6시 00분", is24Hours: false },
+        saturday: { start: "오전 9시 00분", end: "오후 6시 00분", is24Hours: false },
+        sunday: { start: "오전 9시 00분", end: "오후 6시 00분", is24Hours: false },
+    } as BusinessHours
+});
   
-  export const tempBusinessHoursState = atom<BusinessHours>({
+  export const tempBusinessHoursState = atom({
     key: 'tempBusinessHoursState',
-    default: {}
+    default: {} as BusinessHours
   });
 
 

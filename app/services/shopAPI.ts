@@ -15,12 +15,14 @@ export interface BusinessHour {
     breakTimeStart: string | null;
     breakTimeEnd: string | null;
     isOpen: boolean;
+    is24Hours: boolean;
 }
 
 // BusinessHours 타입 정의 추가
 export type DaySchedule = {
     start: string;
     end: string;
+    is24Hours: boolean; 
     breakTime?: {
         start: string;
         end: string;
