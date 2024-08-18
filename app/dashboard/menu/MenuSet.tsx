@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { MenuNav } from "./MenuNavbar";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { menuItemAtom, navContent, shopIdAtom } from "@/app/recoil/state";
@@ -14,12 +14,7 @@ import { ItemLayout } from "../../../components/common/ItemLayout";
 import { ItemHeader } from "../../../components/common/ItemHeader";
 import MainMenu from "../mainMenu/MainMenu";
 import { ReorderItemModal } from "./menuModal/ReorderItemModal";
-
-interface Group {
-    id: number;
-    content: string;
-    name: string;
-}
+import useSearch from "@/lib/hooks/useSearch";
 
 const MenuSet = ({ onClose }: ModalProps) => {
     const [openModal, setOpenModal] = useState({
@@ -33,6 +28,8 @@ const MenuSet = ({ onClose }: ModalProps) => {
     const [selectGroupId, setSelectGroupId] = useState<number | null>(null);
     const selectedNav = useRecoilValue(navContent);
     const shopId = useRecoilValue(shopIdAtom);
+
+    const { search, getFilteredData, onChangeSearch } = useSearch(menuGroup);
 
     const handleModalOpen = (modalName: string, id?: number) => {
         setOpenModal((prevModal) => ({
@@ -92,13 +89,9 @@ const MenuSet = ({ onClose }: ModalProps) => {
         }
     }, []);
 
-    const memoizedGroupList = useMemo(() => {
-        return menuGroup;
-    }, [menuGroup]);
-
     useEffect(() => {
         fetchGroupList();
-        console.log("menuSet useEffect");
+        console.log("heelo");
     }, [fetchGroupList]);
 
     return (
@@ -109,6 +102,8 @@ const MenuSet = ({ onClose }: ModalProps) => {
                     <ItemLayout>
                         <ItemHeader>
                             <input
+                                value={search}
+                                onChange={onChangeSearch}
                                 placeholder="메뉴를 검색하세요"
                                 className="border rounded-xl mx-4 px-4 py-2"
                             />
@@ -127,7 +122,7 @@ const MenuSet = ({ onClose }: ModalProps) => {
                                 {/* 메뉴 그룹 추가 버튼 */}
                             </div>
                         </ItemHeader>
-                        {memoizedGroupList.map((menuItem) => (
+                        {getFilteredData.map((menuItem) => (
                             <div
                                 className="flex flex-col border rounded-2xl bg-white p-4 mt-2 "
                                 key={menuItem.id}

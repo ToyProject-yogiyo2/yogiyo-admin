@@ -11,6 +11,7 @@ import { ItemLayout } from "../../../components/common/ItemLayout";
 import { ItemHeader } from "../../../components/common/ItemHeader";
 import { ReorderOptionGroup } from "./optionModal/ReorderOptionGroup";
 import { ReorderOptionItem } from "./optionModal/ReorderOptionItem";
+import useSearch from "@/lib/hooks/useSearch";
 
 const OptionMenu = ({ onClose }: ModalProps) => {
     const shopId = useRecoilValue(shopIdAtom);
@@ -25,6 +26,8 @@ const OptionMenu = ({ onClose }: ModalProps) => {
         reorderOptionGroupModal: false,
         reorderOptionItem: false,
     });
+
+    const { search, getFilteredData, onChangeSearch } = useSearch(optionList);
 
     const handleModalOpen = (modalName: string, id?: number) => {
         setOpenModal((prevModal) => ({
@@ -117,11 +120,12 @@ const OptionMenu = ({ onClose }: ModalProps) => {
         console.log("optionmenu useEffect");
     }, [optionGroupList]);
 
-    console.log(optionList);
     return (
         <ItemLayout>
             <ItemHeader>
                 <input
+                    onChange={onChangeSearch}
+                    value={search}
                     placeholder="옵션을 검색하세요"
                     className=" border rounded-xl mx-4 px-4 py-2"
                 />
@@ -139,7 +143,7 @@ const OptionMenu = ({ onClose }: ModalProps) => {
             </ItemHeader>
             {optionList && optionList.length > 0 ? (
                 <>
-                    {optionList.map((options) => (
+                    {getFilteredData.map((options) => (
                         <div
                             className="flex flex-col border rounded-2xl bg-white p-4 mt-2"
                             key={options.id}

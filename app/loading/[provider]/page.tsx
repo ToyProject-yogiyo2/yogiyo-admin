@@ -16,14 +16,14 @@ export default function Loading({ params }: DynamicRoute) {
     useEffect(() => {
         const getSocialToken = async (providerType: string) => {
             const CODE = new URL(window.location.href).searchParams.get("code");
-            const res = await getAxios.post("/owner/login", {
+            const res = await getAxios.post(`/owner/login`, {
                 email: null,
                 password: null,
                 authCode: CODE,
                 providerType: providerType.toUpperCase(),
             });
             if (res.status >= 200 && res.status < 300) {
-                const resMyPage = await getAxios.get("/owner/mypage");
+                const resMyPage = await getAxios.get(`/owner/mypage`);
                 const { userId, email: userEmail } = res.data;
                 const { nickname: userNickname } = resMyPage.data;
                 const userData = {

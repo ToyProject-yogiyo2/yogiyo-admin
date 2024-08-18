@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-module.exports = {
+const nextConfig = {
+    images: {
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "yogiyo-clone.shop",
+                pathname: "/images/**",
+            },
+        ],
+    },
     async rewrites() {
         return [
             {
@@ -12,3 +19,5 @@ module.exports = {
     },
     reactStrictMode: false,
 };
+
+module.exports = nextConfig;

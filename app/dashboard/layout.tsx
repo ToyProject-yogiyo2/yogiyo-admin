@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         if (!user?.isLoggedIn) {
             router.push("/login");
         }
-    }, []);
+    }, [user, router]);
 
-    return <div>{user?.isLoggedIn ? <div>{children}</div> : <></>}</div>;
+    return <div>{user?.isLoggedIn ? children : null}</div>;
 }

@@ -1,11 +1,7 @@
 import axios from "axios";
 
 export const getAxios = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-    headers: {
-        "Content-Type": "application/json",
-        SameSite: "lax",
-    },
+    baseURL: process.env.NEXT_PUBLIC_API_URL as string,
     withCredentials: true,
 });
 
@@ -58,7 +54,7 @@ getAxios.interceptors.response.use(
 
             if (refreshToken) {
                 try {
-                    const refreshResponse = await getAxios.post("/re-issue");
+                    const refreshResponse = await getAxios.post(`/re-issue`);
                     console.log("axios response use 안쪽", refreshResponse.data);
                     document.cookie = `accessToken=${refreshResponse.data.accessToken}`;
                     lastTimeAccessToken = Date.now();
@@ -96,7 +92,7 @@ export const emailJoin = async (email: string, password: string, nickname: strin
     };
     console.log(userData);
     try {
-        const resJoin = await getAxios.post("/owner/join", userData);
+        const resJoin = await getAxios.post(`/owner/join`, userData);
         return resJoin.data;
     } catch (error) {
         console.log(error);
@@ -113,13 +109,13 @@ export const emailLogin = async (email: string, password: string) => {
 
     console.log(userData);
 
-    const resSubmit = await getAxios.post("/owner/login", userData, {});
+    const resSubmit = await getAxios.post(`/owner/login`, userData);
     if (resSubmit.status >= 200 && resSubmit.status < 300) {
         const { userId, email: userEmail } = resSubmit.data;
         console.log(`${resSubmit.data.userId} 로그인 성공`);
         console.log(resSubmit);
 
-        const resMyPage = await getAxios.get("/owner/mypage");
+        const resMyPage = await getAxios.get(`/owner/mypage`);
         const { nickname: userNickname } = resMyPage.data;
         return { userId, userEmail, userNickname };
     } else {
@@ -129,14 +125,14 @@ export const emailLogin = async (email: string, password: string) => {
 };
 
 export const SocialKakao = async () => {
-    const CLIENT_ID = `${process.env.NEXT_PUBLIC_KAKAO_API_KEY}`;
-    const REDIRECT_URI = `${process.env.NEXT_PUBLIC_KAKAO_LOGIN_REDIRECT_URI}`;
+    const CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_API_KEY as string;
+    const REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_LOGIN_REDIRECT_URI as string;
     window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`;
 };
 
 export const SocialNaver = async () => {
-    const CLIENT_ID = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID;
-    const REDIRECT_URI = process.env.NEXT_PUBLIC_NAVER_LOGIN_REDIRECT_URI;
+    const CLIENT_ID = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID as string;
+    const REDIRECT_URI = process.env.NEXT_PUBLIC_NAVER_LOGIN_REDIRECT_URI as string;
     const STATE = "jjak";
     window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${STATE}`;
 };

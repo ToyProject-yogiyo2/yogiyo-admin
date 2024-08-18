@@ -8,6 +8,10 @@ interface ItemProps {
     showImage?: boolean;
 }
 
+// const imageLoader = ({src, width, quality}) => {
+//     return `https://yogiyo-clone.shop/images/${src}?w=${width}&q=${quality || 75}`
+// }
+
 const isPictuerEmpty = () => {
     return (
         <div>

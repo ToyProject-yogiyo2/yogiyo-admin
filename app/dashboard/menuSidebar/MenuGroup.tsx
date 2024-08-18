@@ -3,11 +3,7 @@ import React, { ReactNode, useState } from "react";
 import { useRecoilState } from "recoil";
 import { content } from "@/app/recoil/state";
 
-type MenuGroupProps = {
-    children?: ReactNode;
-};
-
-const MenuGroup = ({ children }: MenuGroupProps) => {
+const MenuGroup = () => {
     const [showOption, setShowOption] = useState<boolean>(false);
     const [selectMenu, setSelectMenu] = useRecoilState(content);
 
@@ -18,7 +14,6 @@ const MenuGroup = ({ children }: MenuGroupProps) => {
     const handleMenuClick = (menuState: "menuSet") => {
         setSelectMenu(menuState);
     };
-    console.log(selectMenu);
 
     return (
         <div className="ml-5 font-bold text-swiper-num cursor-pointer" onClick={OpenCloseBtn}>

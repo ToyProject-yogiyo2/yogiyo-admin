@@ -20,7 +20,7 @@ export const OptionItem = ({ optionGroupId }: optionId) => {
     const [openModal, setOpenModal] = useState({
         addOptionItemModal: false,
     });
-    console.log(optionList);
+
     const handleModalOpen = (modalName: string, id?: number) => {
         setOpenModal((prevModal) => ({
             ...prevModal,
